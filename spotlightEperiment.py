@@ -1,10 +1,13 @@
 # 22/09/2020
-
-import psychopy
-from psychopy import locale_setup, gui, visual, core, data, event, logging, monitors, sound
+# each location flickering at a different rate
+# 15.2 Hz (position 1), 8.7 Hz (position 2), 20.3 Hz (position 3) and 12.2 Hz (position 4).
+# Symbol presentations occurred in synchrony at the four locations with fixed durations of 181 ms.
+# import psychopy
+# locale_setup, gui, logging, monitors, sound
+from psychopy import visual, core, data, event
 import os
 
-from numpy.random import random, randint, shuffle, seed
+# from numpy.random import random, randint, shuffle, seed
 
 import numpy as np
 
@@ -46,7 +49,6 @@ rectanglePos = [-9, -4, 4, 9]
 
 rects = list(filter(lambda x: x.endswith('.jpg'), os.listdir(stimDir)))
 
-
 #listname = images[indx]
 # current_image.draw()
 
@@ -81,27 +83,67 @@ def loadpics(picture_directory, pics, endindx, listname, units, picSize):
                                          str(pics[file]), units=units, size=picSize, name=str(pics[file])))
 
 
+def randomStim(randStim):
+    randStim = list(np.random.choice(5, 4, replace=True))
+
+
 stimuli = []
 loadpics(stimDir, rects, len(rects), stimuli, 'deg', (horiz, vert))
 #listname = images[indx]
 # current_image.draw()
 
+# On separate blocks of trials, subjects were instructed
+# verbally to attend to either the two left field positions (1 + 2), the
+# two right field positions (3 + 4), or to two separated positions
+# (1 + 3) or (2 + 4).
+# Simultaneous target symbols occurred unpre dictably at the two attended locations (0–3 times per trial), as well as
+# at the other locations.
+
+
 runExperiment = True
 
-trialNumber = 0
+trialNumber, frameN = 0, 0
+randStim = list(np.random.choice(5, 4, replace=True))
+expTime = clock.getTime()
 while runExperiment:
     trialNumber += 1
+    frameN += 1
 
-    stimuli[0].pos = (rectanglePos[0], 0)
-    stimuli[1].pos = (rectanglePos[1], 0)
-    stimuli[2].pos = (rectanglePos[2], 0)
-    stimuli[3].pos = (rectanglePos[3], 0)
+    if not event.getKeys('q'):
+        runExperiment = True
+    else:
+        core.quit()
 
-    stimuli[0].draw(), stimuli[1].draw(), stimuli[2].draw(), stimuli[3].draw()
-    win.flip()
-    core.wait(1)
+    # if frameN % 11 == 0:
+    #     randStim = list(np.random.choice(5, 4, replace=True))
+    # randStim = list(np.random.choice(5, 4, replace=True))
 
-    draw_fix(win, fixation, 1)
+    if frameN % 11 == 0:
+
+        randomStim(randStim)
+        fixation.draw()
+
+        stimuli[randStim[0]].pos = (rectanglePos[0], 0)
+        stimuli[randStim[0]].draw()
+
+        stimuli[randStim[1]].pos = (rectanglePos[1], 0)
+        stimuli[randStim[1]].draw()
+
+        stimuli[randStim[2]].pos = (rectanglePos[2], 0)
+        stimuli[randStim[2]].draw()
+
+        stimuli[randStim[3]].pos = (rectanglePos[3], 0)
+        stimuli[randStim[3]].draw()
+
+        win.flip()
+
+    if clock.getTime() - expTime > trialDuration:
+        fixation.draw()
+        win.flip()
+        core.wait(1.5)
+        expTime = clock.getTime()
+
+    # draw_fix(win, fixation, 1)
 
 
 win.close(), core.quit()
@@ -112,3 +154,4 @@ win.close(), core.quit()
 # not occur in synchrony with the background flickering rectangles that drove the SSVEP.
 # Target symbols occurred equally often at all stimulus positions, following randomized
 # sequences.
+#from psychopy import visual
