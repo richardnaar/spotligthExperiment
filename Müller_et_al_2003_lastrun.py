@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2021.2.3),
-    on November 18, 2021, at 09:52
+    on January 05, 2022, at 17:14
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -51,7 +51,7 @@ filename = _thisDir + os.sep + u'data/%s_%s_%s' % (expInfo['participant'], expNa
 # An ExperimentHandler isn't essential but helps with data saving
 thisExp = data.ExperimentHandler(name=expName, version='',
     extraInfo=expInfo, runtimeInfo=None,
-    originPath='C:\\Users\\Richard Naar\\Documents\\dok\\TARU\\EEGManyLabs\\Task\\Müller_et_al_2003_lastrun.py',
+    originPath='C:\\Users\\Richard Naar\\Documents\\dok\\TARU\\EEGManyLabs\\Task\\spotlight_replication\\Müller_et_al_2003_lastrun.py',
     savePickle=True, saveWideText=True,
     dataFileName=filename)
 # save a log file for detail verbose info
@@ -65,7 +65,7 @@ frameTolerance = 0.001  # how close to onset before 'same' frame
 
 # Setup the Window
 win = visual.Window(
-    size=[1920, 1080], fullscr=True, screen=0, 
+    size=[800, 600], fullscr=True, screen=0, 
     winType='pyglet', allowGUI=False, allowStencil=False,
     monitor='spot2', color=[-1,-1,-1], colorSpace='rgb',
     blendMode='avg', useFBO=True, 
@@ -85,23 +85,26 @@ defaultKeyboard = keyboard.Keyboard()
 
 # Initialize components for Routine "intro"
 introClock = core.Clock()
-frameConst = int(expInfo['refreshRate'])/60 # Multiplier that scales the presentation times
+# Multiplier that scales the presentation times if the refresh rate is not 60
+frameConst = int(expInfo['refreshRate'])/60 
 
-startFrame = 390 * frameConst # This is to make fliker frequencies to sync at 
-# 533.3(3) ms after the start of the presentation
+# This is to make flicker frequencies to sync at 533.3(3) ms after the start of the presentation
+startFrame = 390 * frameConst 
 
-waitRespTime = 1 # Waiting response after each presentation for that amount of time 
-# This means that ITI is actually by that duration longer than whatever gets defined in iti routine
+# Waiting response after each presentation for that amount of time 
+# This also means essentially that the "blank period" is this + whatever gets defined in iti routine
+waitRespTime = 1 
 
 # NB! Actual stimulus duration is stimDur - waitRespTime 
-stimDur = 8.1 # (e.g. 186 + 60 frames with 60 Hz)
+stimDur = 4.1 # (e.g. 186 + 60 frames with 60 Hz)
 
-k = 1 # Makes it easier to rescale the size of the stimuli
+k = 1 # Just a scaler making it easier to rescale the sizes
 boxSize = (2.5*k, 3.2*k)
 symbolSize = (1.5*k, 2.5*k)
 
-#ecc = [5.25, 10.25]
-ecc = [4, 9] # Distance from centre to the centre of the stimuli in deg
+# Distance from centre to the centre of the stimuli in deg
+ecc = [5.75, 10.75] 
+# ecc = [4, 9]
 
 # List of box positions 
 xys = [(ecc[1]*-1,0), (ecc[0]*-1,0),(ecc[0],0), (ecc[1],0)] 
@@ -126,10 +129,9 @@ imageArray = ['stimuli/rect_ur.png','stimuli/rect_dr.png','stimuli/rect_dl.png',
 # (without replacement) will give aprox. 70% trials with 1-3 target pairs
 randImage = [0,1,2,3,4,4,4,4] # Each number represents a symbol (4 == target)
 shuffle(randImage) # Shuffle the pool for the first round
-nonTargetSet = imageArray[0:4] # Set with no targets (to replace targets if 
-# minimum interval of 905 ms have not eceeded after presenting the last target pair
-
-# This hepls with data entries (see the code component in the trial routine)
+# A set with no targets (to replace targets if minimum interval of 905 ms have not eceeded after presenting the last target pair)
+nonTargetSet = imageArray[0:4] 
+# This helps with data entries (see the code component in the trial routine)
 def addData(rt, isPair, trials, nrOfEntries):
     if nrOfEntries > 0:
         thisExp.nextEntry()
@@ -137,7 +139,7 @@ def addData(rt, isPair, trials, nrOfEntries):
     thisExp.addData('targetPair', isPair)
     thisExp.addData('absNumOfTrials', trials)
 
-# Flip after that many frames
+# Flip after that many frames (on 60 hz monitor)
 flipAfterOriginal = [4, 7, 3, 5]
 # Multiply with the scaler
 flipAfterEvery = [element * frameConst for element in flipAfterOriginal] 
@@ -152,7 +154,7 @@ def checkOpaStatus(opas, frames, frameNow):
 # change the symbol in that many frames
 symShowFrames = 11*frameConst
 
-waitNextPairFrames = 2*55*frameConst
+waitNextPairFrames = 55*frameConst
 
 # Initialize components for Routine "block_intro"
 block_introClock = core.Clock()
@@ -211,6 +213,13 @@ image_d = visual.ImageStim(
     color=[1,1,1], colorSpace='rgb', opacity=None,
     flipHoriz=False, flipVert=False,
     texRes=32.0, interpolate=True, depth=-4.0)
+fix2 = visual.TextStim(win=win, name='fix2',
+    text='+',
+    font='Open Sans',
+    pos=(0, 0), height=1.0, wrapWidth=None, ori=0.0, 
+    color='white', colorSpace='rgb', opacity=None, 
+    languageStyle='LTR',
+    depth=-5.0);
 
 # Create some handy timers
 globalClock = core.Clock()  # to track the time since experiment started
@@ -403,7 +412,7 @@ for thisBlock in blocks:
         
         # ------Prepare to start Routine "iti"-------
         continueRoutine = True
-        routineTimer.add(1.000000)
+        routineTimer.add(2.000000)
         # update component parameters for each repeat
         rects.opacities = 1
         absNumOfTrials += 1
@@ -446,7 +455,7 @@ for thisBlock in blocks:
                 fix.setAutoDraw(True)
             if fix.status == STARTED:
                 # is it time to stop? (based on global clock, using actual start)
-                if tThisFlipGlobal > fix.tStartRefresh + 1-frameTolerance:
+                if tThisFlipGlobal > fix.tStartRefresh + 2-frameTolerance:
                     # keep track of stop time/frame for later
                     fix.tStop = t  # not accounting for scr refresh
                     fix.frameNStop = frameN  # exact frame index
@@ -505,7 +514,8 @@ for thisBlock in blocks:
         targetPair = False
         nrOfEntries = 0
         cond = [pos2attLeft-1, pos2attRight-1]
-        
+        counter = 0
+        opacities = [0,0,0,0]
         # List of components
         imList = [image_a, image_b, image_c, image_d]
         
@@ -515,7 +525,7 @@ for thisBlock in blocks:
         
         
         # keep track of which components have finished
-        trialComponents = [image_a, image_b, image_c, image_d]
+        trialComponents = [image_a, image_b, image_c, image_d, fix2]
         for thisComponent in trialComponents:
             thisComponent.tStart = None
             thisComponent.tStop = None
@@ -537,21 +547,28 @@ for thisBlock in blocks:
             tThisFlipGlobal = win.getFutureFlipTime(clock=None)
             frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
             # update/draw components on each frame
-            fix.draw() # Present fixation
+            #fix.draw() # Present fixation
             rects.draw() # Present place holder boxes
             
-            opacities = [0,0,0,0] # List of default place holder box opacities 
-            frameNow = startFrame + frameN # Sync at 533.3(3) ms after the start
+            # List of default place holder box opacities, this will be over written for one frame by checkOpaStatus if necessary
+            # This is just to keep the duration of "on frame" ~ 1000/60.8 ms 
+            if sum(opacities) and frameConst-counter <= 1:
+                opacities = [0,0,0,0]
+                counter = 0
+            else:
+                counter += 1
+            # Sync at 533.3(3) ms after the start 
+            frameNow = startFrame + frameN 
             # Change the opacity based cycle duration in frames
             opacities = checkOpaStatus(opacities, flipAfterEvery, frameNow)
-            # Change the opacity of the placeholders
+            # Change the opacity of the place holders
             if t <= stimDur-waitRespTime:
                 rects.opacities = opacities
             else: # If the presentation is over set back to 1
                 rects.opacities = 1 # after last set of symbols have presented
             
             # Change symbol after 183.3(3) ms
-            if frameN % symShowFrames == 0:
+            if frameN % symShowFrames == 0: # symShowFrames == 11 frames with 60 Hz monitor
                 # Take random images from the set
                 imCount = 0
                 for im in imList:
@@ -581,6 +598,7 @@ for thisBlock in blocks:
                 if 'space' in keys[-1].name:
                     if not targetPair:
                         addData('false alarm', targetPair, absNumOfTrials, nrOfEntries)
+            #            addData('false alarm', targetPair) # , absNumOfTrials, nrOfEntries
                     else:
                         addData(t-switchTime, targetPair, absNumOfTrials, nrOfEntries)
                     nrOfEntries += 1
@@ -589,7 +607,7 @@ for thisBlock in blocks:
                 elif 'escape' in keys[-1].name:
                     core.quit()
             
-            # Do not show the symbols if the presentation is over (only response will be still recorded)
+            # Do not show the symbols if the presentation is over (response will be still recorded)
             if t > stimDur-waitRespTime and imList[0].opacity:
                 for im in imList:
                     im.opacity = 0
@@ -663,6 +681,23 @@ for thisBlock in blocks:
                     win.timeOnFlip(image_d, 'tStopRefresh')  # time at next scr refresh
                     image_d.setAutoDraw(False)
             
+            # *fix2* updates
+            if fix2.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                # keep track of start time/frame for later
+                fix2.frameNStart = frameN  # exact frame index
+                fix2.tStart = t  # local t and not account for scr refresh
+                fix2.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(fix2, 'tStartRefresh')  # time at next scr refresh
+                fix2.setAutoDraw(True)
+            if fix2.status == STARTED:
+                # is it time to stop? (based on global clock, using actual start)
+                if tThisFlipGlobal > fix2.tStartRefresh + stimDur-frameTolerance:
+                    # keep track of stop time/frame for later
+                    fix2.tStop = t  # not accounting for scr refresh
+                    fix2.frameNStop = frameN  # exact frame index
+                    win.timeOnFlip(fix2, 'tStopRefresh')  # time at next scr refresh
+                    fix2.setAutoDraw(False)
+            
             # check for quit (typically the Esc key)
             if endExpNow or defaultKeyboard.getKeys(keyList=["escape"]):
                 core.quit()
@@ -684,6 +719,8 @@ for thisBlock in blocks:
         for thisComponent in trialComponents:
             if hasattr(thisComponent, "setAutoDraw"):
                 thisComponent.setAutoDraw(False)
+        trials.addData('fix2.started', fix2.tStartRefresh)
+        trials.addData('fix2.stopped', fix2.tStopRefresh)
         # the Routine "trial" was not non-slip safe, so reset the non-slip timer
         routineTimer.reset()
         thisExp.nextEntry()
