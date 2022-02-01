@@ -5,7 +5,7 @@ Müller, M. M., Malinowski, P., Gruber, T., & Hillyard, S. A. (2003). Sustained 
 
 NB! Will not run out-of-the-box. This version uses monitor settings saved under the name of "spotlight". 
 
-You can change that by going: Edit experiment settings (ratchet icon on meny bar) > Screen
+You can change that by going: Edit experiment settings (ratchet icon on menu bar) > Screen
 
 Make sure to ...
 - ... set the resolution of the monitor to 800 x 600 pixels
