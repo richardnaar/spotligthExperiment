@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2021.2.3),
-    on January 05, 2022, at 17:14
+    on February 01, 2022, at 10:29
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -88,45 +88,44 @@ introClock = core.Clock()
 # Multiplier that scales the presentation times if the refresh rate is not 60
 frameConst = int(expInfo['refreshRate'])/60 
 
-# This is to make flicker frequencies to sync at 533.3(3) ms after the start of the presentation
+# This is to sync at 533.3(3) ms after the start of the presentation
 startFrame = 390 * frameConst 
 
 # Waiting response after each presentation for that amount of time 
-# This also means essentially that the "blank period" is this + whatever gets defined in iti routine
+# Meaning that the "blank period" is this + whatever gets defined in iti routine
 waitRespTime = 1 
 
 # NB! Actual stimulus duration is stimDur - waitRespTime 
-stimDur = 4.1 # (e.g. 186 + 60 frames with 60 Hz)
+stimDur = 4.1 # stimDur = 4.1 # (e.g. 186 + 60 frames with 60 Hz)
 
-k = 1 # Just a scaler making it easier to rescale the sizes
-boxSize = (2.5*k, 3.2*k)
-symbolSize = (1.5*k, 2.5*k)
+k = 0.8 # Just a scaler for rescaling the sizes 
+boxSize = (2.5, 3.2)
+symbolSize = (2.5*k, 3.2*k) # Should scale down compared to boxes?
 
 # Distance from centre to the centre of the stimuli in deg
-ecc = [5.75, 10.75] 
-# ecc = [4, 9]
-
+# ecc = [5.25, 10.25] # x (4 or 9) + (width of the stimulus (2.5 deg) / 2)
+ecc = [4, 9]
 # List of box positions 
 xys = [(ecc[1]*-1,0), (ecc[0]*-1,0),(ecc[0],0), (ecc[1],0)] 
 
 # Array of place holder boxes to be presented on screen
 rects = visual.ElementArrayStim(win, name = 'rects', units='deg', 
-fieldPos=(0.0, 0.0), fieldSize=(24, 4), fieldShape='square', 
+fieldPos=(0.0, 0.0), fieldSize=(3, 4), fieldShape='square', 
 nElements=4, sizes= boxSize, xys=xys, 
 colors=([1.0, 1.0, 1.0]) , colorSpace='rgb', opacities=1, oris=0, 
 sfs=0, contrs=[1, 1,1,1], phases=0, elementTex='sqr',
 elementMask=None, texRes=48, interpolate=True, 
 autoLog=None, maskParams=None)
 
-# Make keyboard object
+# Make a keyboard object
 kb = keyboard.Keyboard()
 
 # List of images used
 imageArray = ['stimuli/rect_ur.png','stimuli/rect_dr.png','stimuli/rect_dl.png','stimuli/rect_ul.png','stimuli/rect_target.png']
 #imageArray = ['stimuli/rect_ur.jpg','stimuli/rect_dr.jpg','stimuli/rect_dl.jpg','stimuli/rect_ul.jpg','stimuli/rect_target.jpg']
 
-# If there are 4x as many target stimuli in the selection then random sampling 
-# (without replacement) will give aprox. 70% trials with 1-3 target pairs
+# 4x as many target stimuli in the set should give 
+# (random sampling without replacement) aprox. 70% trials with 1-3 target pairs
 randImage = [0,1,2,3,4,4,4,4] # Each number represents a symbol (4 == target)
 shuffle(randImage) # Shuffle the pool for the first round
 # A set with no targets (to replace targets if minimum interval of 905 ms have not eceeded after presenting the last target pair)
@@ -144,17 +143,17 @@ flipAfterOriginal = [4, 7, 3, 5]
 # Multiply with the scaler
 flipAfterEvery = [element * frameConst for element in flipAfterOriginal] 
 
-# This checks if opacity of the box needs to be turned up  (see the code component in the trial routine)
-def checkOpaStatus(opas, frames, frameNow):
+# This checks if opacity of the box needs to be turned up (see the code component in the trial routine)
+def checkOpaStatus(opas, flipAfterEvery, frameNow):
     for opai in range(0, len(opas)):
-        if frameNow % frames[opai] == 0:
+        if frameNow % flipAfterEvery[opai] == 0:
             opas[opai] = 1
     return opas
 
-# change the symbol in that many frames
+# Change the symbol in that many frames
 symShowFrames = 11*frameConst
 
-waitNextPairFrames = 55*frameConst
+waitNextPairFrames = 54*frameConst # waitNextPairFrames = 54*frameConst # (aprox 900 ms, 905 in original)
 
 # Initialize components for Routine "block_intro"
 block_introClock = core.Clock()
@@ -392,7 +391,7 @@ for thisBlock in blocks:
     routineTimer.reset()
     
     # set up handler to look after randomisation of conditions etc
-    trials = data.TrialHandler(nReps=40.0, method='random', 
+    trials = data.TrialHandler(nReps=40.0, method='sequential', 
         extraInfo=expInfo, originPath=-1,
         trialList=[None],
         seed=None, name='trials')
@@ -414,9 +413,9 @@ for thisBlock in blocks:
         continueRoutine = True
         routineTimer.add(2.000000)
         # update component parameters for each repeat
-        rects.opacities = 1
-        absNumOfTrials += 1
-        thisExp.addData('absNumOfTrials', absNumOfTrials) 
+        rects.opacities = 1 # Set the opacity back up for all the boxes 
+        absNumOfTrials += 1 # Increase the trial counter by 1
+        thisExp.addData('absNumOfTrials', absNumOfTrials) # Send info about trial number to the data file
         
         
         # keep track of which components have finished
@@ -519,7 +518,7 @@ for thisBlock in blocks:
         # List of components
         imList = [image_a, image_b, image_c, image_d]
         
-        # Make the symbols visible
+        # Make all the symbols visible
         for im in imList:
             im.opacity = 1
         
@@ -547,12 +546,11 @@ for thisBlock in blocks:
             tThisFlipGlobal = win.getFutureFlipTime(clock=None)
             frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
             # update/draw components on each frame
-            #fix.draw() # Present fixation
-            rects.draw() # Present place holder boxes
+            rects.draw() # Present place the boxes
             
-            # List of default place holder box opacities, this will be over written for one frame by checkOpaStatus if necessary
-            # This is just to keep the duration of "on frame" ~ 1000/60.8 ms 
-            if sum(opacities) and frameConst-counter <= 1:
+            # List of default opacities, this will be written over for one frame by checkOpaStatus if necessary
+            # This is just to keep the duration of "on frame" ~ 1000/60 ms (1000/60.8 in origina)
+            if sum(opacities) and frameConst-counter <= 1: # frameConst == 1 on 60 Hz 
                 opacities = [0,0,0,0]
                 counter = 0
             else:
@@ -560,19 +558,19 @@ for thisBlock in blocks:
             # Sync at 533.3(3) ms after the start 
             frameNow = startFrame + frameN 
             # Change the opacity based cycle duration in frames
-            opacities = checkOpaStatus(opacities, flipAfterEvery, frameNow)
-            # Change the opacity of the place holders
+            opacities = checkOpaStatus(opacities, flipAfterEvery, frameNow) # fAE == [4, 7, 3, 5] by default
+            # Change the opacity of the boxes based on checkOpaStatus()
             if t <= stimDur-waitRespTime:
                 rects.opacities = opacities
             else: # If the presentation is over set back to 1
-                rects.opacities = 1 # after last set of symbols have presented
+                rects.opacities = 1
             
-            # Change symbol after 183.3(3) ms
-            if frameN % symShowFrames == 0: # symShowFrames == 11 frames with 60 Hz monitor
+            # Change symbol after every 183.3(3) ms
+            if frameN % symShowFrames == 0: # symShowFrames == 11 frames (on 60 Hz)
                 # Take random images from the set
                 imCount = 0
                 for im in imList:
-                    im.image = imageArray[randImage[imCount]]
+                    im.image = imageArray[randImage[imCount]] # randImage == [0,1,2,3,4,4,4,4] 
                     imCount += 1
                 # If the target is in both of the target locations then
                 if 'target' in imageArray[randImage[cond[0]]] and 'target' in imageArray[randImage[cond[1]]]:
@@ -581,14 +579,14 @@ for thisBlock in blocks:
                         # If last set included target pair and no resp was recorded
                         if targetPair and not responseGiven:
                             addData('noResp', targetPair, absNumOfTrials, nrOfEntries) # Add data
-                            nrOfEntries += 1 # Keep track of number of entries in the current trial
+                            nrOfEntries += 1 # Keep track of number of entries in current trial
                         switchTime = t # Start the clock
                         targetPair = True # This will be set False after every response (also in the very beginning)
                         frameCount = frameN # This will be used to check if wait time has exceeded
                         responseGiven = False # To keep track if response was already recorded
                     else: # If wait time is not over yet but random sampling gave a another pair of 
                         # targets then just change one of them randomly to non-target
-                        imList[cond[randint(0,1)]].image = nonTargetSet[randint(0,4)]
+                        imList[cond[randint(0,1)]].image = nonTargetSet[randint(0,4)] # nonTargetSet == imageArray[0:4]
                 shuffle(randImage) # Shuffle for the next round
             
             # Check keys
