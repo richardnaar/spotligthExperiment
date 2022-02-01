@@ -14,4 +14,10 @@ Make sure to ...
 
 You can change the monitor settings in Monitor settings and Clibrations.
 
+---
 
+This experiment was created using PsychoPy3 Experiment Builder (v2021.2.3)
+
+Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
+    PsychoPy2: Experiments in behavior made easy Behav Res 51: 195. 
+    https://doi.org/10.3758/s13428-018-01193-y
