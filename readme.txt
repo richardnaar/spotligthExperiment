@@ -3,7 +3,7 @@ Replication of the task in:
 Müller, M. M., Malinowski, P., Gruber, T., & Hillyard, S. A. (2003). Sustained division of the attentional spotlight. Nature, 424(6946), 309-312. 
 
 
-NB! Will not run out of box. This version uses monitor settings saved under the name of "spotlight". 
+NB! Will not run out-of-the-box. This version uses monitor settings saved under the name of "spotlight". 
 
 You can change that by going: Edit experiment settings (ratchet icon on meny bar) > Screen
 

@@ -1,9 +1,0 @@
-# alternative way of loading the images (currently not used)
-def loadpics(mainDir, pics, endindx, listname, units, picSize):
-    for file in range(0, endindx):
-        listname.append(visual.ImageStim(win=win, image=mainDir + '\\' +
-                                         str(pics[file]), units=units, size=picSize, name=str(pics[file])))
-stimuli = []
-loadpics(_thisDir, imageArray, len(imageArray), stimuli, 'deg', symbolSize)
-
-
