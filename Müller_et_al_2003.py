@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2022.2.4),
-    on January 31, 2023, at 20:34
+    on January 31, 2023, at 17:44
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -54,7 +54,7 @@ filename = _thisDir + os.sep + u'data/%s_%s_%s' % (expInfo['participant'], expNa
 # An ExperimentHandler isn't essential but helps with data saving
 thisExp = data.ExperimentHandler(name=expName, version='',
     extraInfo=expInfo, runtimeInfo=None,
-    originPath='C:\\Users\\Richard Naar\\Documents\\dok\\TARU\\EEGManyLabs\\Task\\spotlight_replication\\Müller_et_al_2003_lastrun.py',
+    originPath='C:\\Users\\Richard Naar\\Documents\\dok\\TARU\\EEGManyLabs\\Task\\spotlight_replication\\Müller_et_al_2003.py',
     savePickle=True, saveWideText=True,
     dataFileName=filename)
 # save a log file for detail verbose info
@@ -142,15 +142,13 @@ shuffle(randImage) # Shuffle the pool for the first round
 # A set with no targets (to replace targets if minimum interval of 905 ms have not eceeded after presenting the last target pair)
 nonTargetSet = imageArray[0:4] 
 # This helps with data entries (see the code component in the trial routine)
-def addData(rt, isPair, trials, nrOfEntries, accuracy):
-#    if nrOfEntries > 0:
-#        thisExp.nextEntry()
-    thisExp.nextEntry()
+def addData(rt, isPair, trials, nrOfEntries):
+    if nrOfEntries > 0:
+        thisExp.nextEntry()
     thisExp.addData('hand', hands[blocks.thisRepN])
     thisExp.addData('RT', rt) 
     thisExp.addData('targetPair', isPair)
     thisExp.addData('absNumOfTrials', trials)
-    thisExp.addData('accuracy', accuracy)
 
 # Flip after that many frames (on 60 hz monitor)
 flipAfterOriginal = [4, 7, 3, 5]
@@ -166,6 +164,7 @@ def checkOpaStatus(opas, flipAfterEvery, frameNow):
 
 # Change the symbol in that many frames
 symShowFrames = 11*frameConst
+
 waitNextPairFrames = 54*frameConst # waitNextPairFrames = 54*frameConst # (aprox 900 ms, 905 in original)
 
 # --- Initialize components for Routine "block_intro" ---
@@ -203,9 +202,6 @@ fix_iti = visual.TextStim(win=win, name='fix_iti',
     depth=-1.0);
 
 # --- Initialize components for Routine "trial" ---
-# Run 'Begin Experiment' code from presentStim
-mySound = sound.Sound('A', octave=4, hamming=True, secs=0.180,volume=1.0)
-
 image_a = visual.ImageStim(
     win=win,
     name='image_a', units='deg', 
@@ -337,10 +333,8 @@ for thisBlock in blocks:
     # Run 'Begin Routine' code from block_code
     if 'training' in condFile:
         bText = 'Following are the training trials \n\n Press "space" to begin...'
-        selectRows = list(range(0,1))
     else:
         bText = 'Following are the experimental trials \n\n Press "space" to begin...'
-        selectRows = ''
     block_text.setText(bText)
     block_key_resp.keys = []
     block_key_resp.rt = []
@@ -425,13 +419,19 @@ for thisBlock in blocks:
     for thisComponent in block_introComponents:
         if hasattr(thisComponent, "setAutoDraw"):
             thisComponent.setAutoDraw(False)
+    # check responses
+    if block_key_resp.keys in ['', [], None]:  # No response was made
+        block_key_resp.keys = None
+    blocks.addData('block_key_resp.keys',block_key_resp.keys)
+    if block_key_resp.keys != None:  # we had a response
+        blocks.addData('block_key_resp.rt', block_key_resp.rt)
     # the Routine "block_intro" was not non-slip safe, so reset the non-slip timer
     routineTimer.reset()
     
     # set up handler to look after randomisation of conditions etc
     conditions = data.TrialHandler(nReps=2.0, method='random', 
         extraInfo=expInfo, originPath=-1,
-        trialList=data.importConditions(condFile, selection=selectRows),
+        trialList=data.importConditions(condFile),
         seed=None, name='conditions')
     thisExp.addLoop(conditions)  # add the loop to the experiment
     thisCondition = conditions.trialList[0]  # so we can initialise stimuli with some values
@@ -666,14 +666,13 @@ for thisBlock in blocks:
             cond = [pos2attLeft-1, pos2attRight-1]
             counter = 0
             opacities = [0,0,0,0]
-            switchTime = 0
             # List of components
             imList = [image_a, image_b, image_c, image_d]
             
             # Make all the symbols visible
             for im in imList:
                 im.opacity = 1
-            keys = kb.getKeys()
+            
             #$imageArray[randImage[0]]
             # keep track of which components have finished
             trialComponents = [image_a, image_b, image_c, image_d, fix_trial]
@@ -726,16 +725,19 @@ for thisBlock in blocks:
                         imCount += 1
                     # If the target is in both of the target locations then
                     if 'target' in imageArray[randImage[cond[0]]] and 'target' in imageArray[randImage[cond[1]]]:
-                        # If wait time has exceeded
-                        if frameN-frameCount >= waitNextPairFrames: #or not nrOfEntries
+                        # If its first pair in the trial or wait time has exceeded
+                        if frameN-frameCount >= waitNextPairFrames or not nrOfEntries:
                             # If last set included target pair and no resp was recorded
                             if targetPair and not responseGiven:
-                                addData('noResp', targetPair, absNumOfTrials, nrOfEntries, 0) # Add data
+                                addData('noResp', targetPair, absNumOfTrials, nrOfEntries) # Add data
                                 nrOfEntries += 1 # Keep track of number of entries in current trial
                             switchTime = t # Start the clock
                             targetPair = True # This will be set False after every response (also in the very beginning)
                             frameCount = frameN # This will be used to check if wait time has exceeded
                             responseGiven = False # To keep track if response was already recorded
+                            if isTraining and targetPair:
+                                mySound = sound.Sound('A', octave=4, hamming=True, secs=0.180,volume=1.0)
+                                mySound.play()
                         else: # If wait time is not over yet but random sampling gave a another pair of 
                             # targets then just change one of them randomly to non-target
                             imList[cond[randint(0,1)]].image = nonTargetSet[randint(0,4)] # nonTargetSet == imageArray[0:4]
@@ -747,12 +749,10 @@ for thisBlock in blocks:
                 if keys:
                     if 'space' in keys[-1].name:
                         if not targetPair:
-                            addData('false alarm', targetPair, absNumOfTrials, nrOfEntries, 'FA')
-                        elif not responseGiven:
-                            addData(t-switchTime, targetPair, absNumOfTrials, nrOfEntries, 1)
-                            if isTraining:
-                                mySound = sound.Sound('A', octave=4, hamming=True, secs=0.180,volume=1.0)
-                                mySound.play()
+                            addData('false alarm', targetPair, absNumOfTrials, nrOfEntries)
+                #            addData('false alarm', targetPair) # , absNumOfTrials, nrOfEntries
+                        else:
+                            addData(t-switchTime, targetPair, absNumOfTrials, nrOfEntries)
                         nrOfEntries += 1
                         responseGiven = True
                         targetPair = False
