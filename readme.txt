@@ -9,7 +9,7 @@ Make sure to ...
 - ... set the monitor refresh rate to either 60 or 120 (make also appropriate selection prior to the experiment in the infobox)
 - ... configure the monitor settings in the PsychoPy accordingly (including size, distance, and resolution of screen). Click on the monitor icon to change the screen settings.
 
-You can check if the objects presented on screen correspond to the degrees of visual angles aimed for by setting the distnace to be 57 cm. In that case the degrees and cm should match and you can measure them on the screen (e.g. the 4 boxes presented should be 2.5 x 3.2 cm).
+You can check if the objects presented on screen correspond to the degrees of visual angles aimed for by setting the distnace to be 57 cm. In that case the degrees and cm should match and you can measure them on the screen (e.g. the box should be 2.5 x 3.2 cm).
 
 ---
 
