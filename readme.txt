@@ -1,6 +1,6 @@
 Replication of the task in:
 
-Müller, M. M., Malinowski, P., Gruber, T., & Hillyard, S. A. (2003). Sustained division of the attentional spotlight. Nature, 424(6946), 309-312. 
+Müller, M. M., Malinowski, P., Gruber, T., & Hillyard, S. A. (2003). Sustained division of the attentional spotlight. Nature, 424(6946), 309-312. https://doi.org/10.1038/nature01812
 
 
 Make sure to:
