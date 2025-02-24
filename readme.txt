@@ -25,7 +25,9 @@ For example:
 
 translation_ENG.xlsx — English
 translation_EST.xlsx — Estonian
+
 To add a new language:
+
 Create a new .xlsx file in the translations/ directory, following the existing format.
 
 Name the file as translation_<LANGUAGE_CODE>.xlsx, replacing <LANGUAGE_CODE> with a short, clear identifier for the language (e.g., FR for French).

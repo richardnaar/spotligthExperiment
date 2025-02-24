@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.1),
-    on veebruar 24, 2025, at 16:42
+    on veebruar 24, 2025, at 18:07
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -402,7 +402,19 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         except Exception as e:
             print(f"Error initializing parallel port: {e}")
     
-    trigdic = {'start': '1', 'notStart': '0', '1+2': '1100', '1+3': '1010', '2+4': '0101', '3+4': '0011', 'left': '0', 'right': '1', 'notResp': '0', 'resp': '1'}
+    trigdic = {
+        'start': '1', 
+        'notStart': '0', 
+        '1+2': '1100', 
+        '1+3': '1010', 
+        '2+4': '0101', 
+        '3+4': '0011', 
+        'left': '0', 
+        'right': '1', 
+        'notResp': '0', 
+        'resp': '1'
+        }
+    
     trigN = str()
     
     def sendTrigger(t, trigN, EEG, trigDur):
@@ -437,27 +449,36 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     xys = [(ecc[1]*-1,0), (ecc[0]*-1,0),(ecc[0],0), (ecc[1],0)] 
     
     # Array of place holder boxes to be presented on screen
-    rects = visual.ElementArrayStim(win, name = 'rects', units='deg', 
-    fieldPos=(0.0, 0.0), fieldSize=(3, 4), fieldShape='square', 
-    nElements=4, sizes= boxSize, xys=xys, 
-    colors=([1.0, 1.0, 1.0]) , colorSpace='rgb', opacities=1, oris=0, 
-    sfs=0, contrs=[1, 1,1,1], phases=0, elementTex='sqr',
-    elementMask=None, texRes=48, interpolate=True, 
-    autoLog=None, maskParams=None)
+    rects = visual.ElementArrayStim(
+        win, name = 'rects', units='deg', 
+        fieldPos=(0.0, 0.0), fieldSize=(3, 4), fieldShape='square', 
+        nElements=4, sizes= boxSize, xys=xys, 
+        colors=([1.0, 1.0, 1.0]) , colorSpace='rgb', opacities=1, oris=0, 
+        sfs=0, contrs=[1, 1,1,1], phases=0, elementTex='sqr',
+        elementMask=None, texRes=48, interpolate=True, 
+        autoLog=None, maskParams=None
+    )
     
     # Make a keyboard object
     kb = keyboard.Keyboard()
     
     # List of images used
-    imageArray = ['stimuli/rect_ur.png','stimuli/rect_dr.png','stimuli/rect_dl.png','stimuli/rect_ul.png','stimuli/rect_target.png']
-    #imageArray = ['stimuli/rect_ur.jpg','stimuli/rect_dr.jpg','stimuli/rect_dl.jpg','stimuli/rect_ul.jpg','stimuli/rect_target.jpg']
+    imageArray = [
+        'stimuli/rect_ur.png',
+        'stimuli/rect_dr.png',
+        'stimuli/rect_dl.png',
+        'stimuli/rect_ul.png',
+        'stimuli/rect_target.png'
+    ]
     
     # 4x as many target stimuli in the set should give 
     # (random sampling without replacement) aprox. 70% trials with 1-3 target pairs
     randImage = [0,1,2,3,4,4,4,4] # Each number represents a symbol (4 == target)
     shuffle(randImage) # Shuffle the pool for the first round
+    
     # A set with no targets (to replace targets if minimum interval of 905 ms have not eceeded after presenting the last target pair)
     nonTargetSet = imageArray[0:4] 
+    
     # This helps with data entries (see the code component in the trial routine)
     def addData(rt, isPair, trials, nrOfEntries, accuracy):
     #    if nrOfEntries > 0:
@@ -469,12 +490,11 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         thisExp.addData('absNumOfTrials', trials)
         thisExp.addData('accuracy', accuracy)
     
-    # Flip after that many frames (on 60 hz monitor)
-    flipAfterOriginal = [4, 7, 3, 5]
-    # Multiply with the scaler
-    flipAfterEvery = [element * frameConst for element in flipAfterOriginal] 
+    # Frame flipping schedule
+    flipAfterOriginal = [4, 7, 3, 5] # Flip after that many frames (on 60 hz monitor)
+    flipAfterEvery = [element * frameConst for element in flipAfterOriginal] # Multiply with the scaler
     
-    # This checks if opacity of the box needs to be turned up (see the code component in the trial routine)
+    # Chec if opacity of the box needs to be turned up (see the code component in the trial routine)
     def checkOpaStatus(opas, flipAfterEvery, frameNow):
         for opai in range(0, len(opas)):
             if frameNow % flipAfterEvery[opai] == 0:
@@ -1158,6 +1178,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 # Run 'Begin Routine' code from hands
                 halfOftrials = int(nTrials/2)
                 
+                # Randomize hands before each block
                 if not trials.thisN:
                     hand_list = [0,1]
                     shuffle(hand_list)
@@ -1501,7 +1522,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 continueRoutine = True
                 # update component parameters for each repeat
                 # Run 'Begin Routine' code from presentStim
-                # switchTime = 0
                 frameCount = 0
                 responseGiven = False
                 targetPair = False
@@ -1511,6 +1531,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 opacities = [0,0,0,0]
                 switchTime = 0
                 t2 = 0
+                
                 # List of components
                 imList = [image_a, image_b, image_c, image_d]
                 
@@ -1520,7 +1541,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 for im in imList:
                     im.opacity = 1
                 keys = kb.getKeys()
-                #$imageArray[randImage[0]]
+                
                 # store start times for trial
                 trial.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
                 trial.tStart = globalClock.getTime(format='float')
