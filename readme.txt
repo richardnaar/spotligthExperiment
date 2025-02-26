@@ -42,6 +42,12 @@ Note: The experiment will use the file corresponding to the language selected in
 
 ---
 
+TestRun Mode:
+- When the "testRun" option is enabled in the Info Dialog, the experiment simulates keyboard responses. For example, simulated responses (dummy responses) are triggered at predetermined reaction times from a list (RTs), so that you can test the flow of the experiment without requiring manual key presses.
+- Note that instructions within the Test Mode are presented for only a brief duration and continues automatically after the allotted time.
+
+---
+
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.1)
 
 Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 

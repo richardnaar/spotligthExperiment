@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.1),
-    on veebruar 24, 2025, at 18:07
+    on veebruar 26, 2025, at 14:33
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -52,6 +52,7 @@ expInfo = {
     'translation': ['ENG','EST'],
     'EEG': ['0','1'],
     'port address': '0x3FF8',
+    'testRun': ['0','1'],
     'date|hid': data.getDateStr(),
     'expName|hid': expName,
     'psychopyVersion|hid': psychopyVersion,
@@ -531,6 +532,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         if key.startswith(partial_key):
             count += 1
     
+    if int(expInfo['testRun']):
+        presentInstructionsFor = 0.5
+    else:
+        presentInstructionsFor = 1e6  # Effectively "infinite" 
     intro_text = visual.TextStim(win=win, name='intro_text',
         text='',
         font='Open Sans',
@@ -589,6 +594,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # --- Initialize components for Routine "trial" ---
     # Run 'Begin Experiment' code from presentStim
+    import copy
+    
     # create speaker
     deviceManager.addDevice(
         deviceName='mySound',
@@ -896,6 +903,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         block_intro.tStart = globalClock.getTime(format='float')
         block_intro.status = STARTED
         block_intro.maxDuration = None
+        # skip Routine block_intro if its 'Skip if' condition is True
+        block_intro.skipped = continueRoutine and not (presentInstructionsFor)
+        continueRoutine = block_intro.skipped
         # keep track of which components have finished
         block_introComponents = block_intro.components
         for thisComponent in block_intro.components:
@@ -1064,7 +1074,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             cond_setup.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
             cond_setup.tStart = globalClock.getTime(format='float')
             cond_setup.status = STARTED
-            thisExp.addData('cond_setup.started', cond_setup.tStart)
             cond_setup.maxDuration = None
             # keep track of which components have finished
             cond_setupComponents = cond_setup.components
@@ -1131,7 +1140,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             # store stop times for cond_setup
             cond_setup.tStop = globalClock.getTime(format='float')
             cond_setup.tStopRefresh = tThisFlipGlobal
-            thisExp.addData('cond_setup.stopped', cond_setup.tStop)
             # the Routine "cond_setup" was not non-slip safe, so reset the non-slip timer
             routineTimer.reset()
             
@@ -1215,7 +1223,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 cond_intro.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
                 cond_intro.tStart = globalClock.getTime(format='float')
                 cond_intro.status = STARTED
-                cond_intro.maxDuration = None
+                cond_intro.maxDuration = presentInstructionsFor
                 # skip Routine cond_intro if its 'Skip if' condition is True
                 cond_intro.skipped = continueRoutine and not (trials.thisN != int(nTrials/2) and trials.thisN != 0)
                 continueRoutine = cond_intro.skipped
@@ -1245,6 +1253,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     tThisFlipGlobal = win.getFutureFlipTime(clock=None)
                     frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
                     # update/draw components on each frame
+                    # is it time to end the Routine? (based on local clock)
+                    if tThisFlip > cond_intro.maxDuration-frameTolerance:
+                        cond_intro.maxDurationReached = True
+                        continueRoutine = False
                     # Run 'Each Frame' code from hands
                     rects.draw() # Present the boxes
                     
@@ -1542,6 +1554,11 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     im.opacity = 1
                 keys = kb.getKeys()
                 
+                allPresentedSymbols = list()
+                
+                if int(expInfo['testRun']):
+                    RTs = [(i + 1) + random() for i in range(randint(1, 3))]
+                    nDummyResponses = 0
                 # store start times for trial
                 trial.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
                 trial.tStart = globalClock.getTime(format='float')
@@ -1597,19 +1614,20 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         rects.opacities = 1
                     
                     # Change symbol after every 183.3(3) ms
-                    if frameN % symShowFrames == 0 and not t > stimDur-(waitRespTime+0.1833): # symShowFrames == 11 frames (on 60 Hz)
+                    if frameN % symShowFrames == 0 and not t > stimDur-waitRespTime: # stimDur-(waitRespTime+0.1833) # symShowFrames == 11 frames (on 60 Hz)
                         # Take random images from the set
+                        randomSet = randImage[0:4]
                         imCount = 0
                         for im in imList:
-                            im.image = imageArray[randImage[imCount]] # randImage == [0,1,2,3,4,4,4,4] 
+                            im.image = imageArray[randomSet[imCount]] # randImage == [0,1,2,3,4,4,4,4] 
                             imCount += 1
                         # If the target is in both of the target locations then
                         if 'target' in imageArray[randImage[cond[0]]] and 'target' in imageArray[randImage[cond[1]]]:
                             # If wait time has exceeded
-                            if frameN-frameCount >= waitNextPairFrames: #or not nrOfEntries
+                            if frameN-frameCount >= waitNextPairFrames:
                                 # If last set included target pair and no resp was recorded
                                 if targetPair and not responseGiven:
-                                    addData('noResp', targetPair, absNumOfTrials, nrOfEntries, 0) # Add data
+                                    addData('miss', targetPair, absNumOfTrials, nrOfEntries, 'miss') # Add data
                                     nrOfEntries += 1 # Keep track of number of entries in current trial
                                 switchTime = t # Start the clock
                                 targetPair = True # This will be set False after every response (also in the very beginning)
@@ -1617,11 +1635,28 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                                 responseGiven = False # To keep track if response was already recorded
                             else: # If wait time is not over yet but random sampling gave a another pair of 
                                 # targets then just change one of them randomly to non-target
-                                imList[cond[randint(0,1)]].image = nonTargetSet[randint(0,4)] # nonTargetSet == imageArray[0:4]
+                                selectRandLoc = cond[randint(0,1)]
+                                replaceRandSymb = randint(0,4)
+                                imList[selectRandLoc].image = nonTargetSet[replaceRandSymb] # nonTargetSet == imageArray[0:4]
+                                randomSet[selectRandLoc] = replaceRandSymb  # Update randomSet to reflect the change
+                        if not t > (stimDur - waitRespTime):
+                            allPresentedSymbols.append(copy.deepcopy(randomSet))
+                            if int(expInfo['testRun']):
+                                if 'target' in imList[cond[0]].image and 'target' in imList[cond[1]].image :
+                                    mySound = sound.Sound('A', octave=2, hamming=True, secs=0.180,volume=1.0)
+                                    mySound.play()
                         shuffle(randImage) # Shuffle for the next round
                     
                     # Check keys
-                    keys = kb.getKeys()
+                    if int(expInfo['testRun']):
+                        if len(RTs) > nDummyResponses and t >= RTs[nDummyResponses]:
+                            simulated_key = keyboard.KeyPress(name='space', code='space', tDown=t)  # Simulate keypress
+                            keys = [simulated_key]  # Mimic PsychoPy key structure
+                            nDummyResponses += 1
+                        else:
+                            keys = 0
+                    else:
+                        keys = kb.getKeys()
                     
                     if keys:
                         if 'space' in keys[-1].name:
@@ -1645,6 +1680,15 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     if t > stimDur-waitRespTime and imList[0].opacity:
                         for im in imList:
                             im.opacity = 0
+                    
+                    # Final check at end of trial to log missed responses
+                    if t > stimDur-waitRespTime and not responseGiven:
+                        if targetPair:
+                            addData('miss', targetPair, absNumOfTrials, nrOfEntries, 'miss')  # Missed target
+                        elif nrOfEntries == 0:
+                            addData('correct rejection', targetPair, absNumOfTrials, nrOfEntries, 'CR')  # No target, no response
+                        nrOfEntries += 1
+                        responseGiven = True  # Mark as handled
                     
                     # *image_a* updates
                     
@@ -1855,6 +1899,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 trial.tStop = globalClock.getTime(format='float')
                 trial.tStopRefresh = tThisFlipGlobal
                 thisExp.addData('trial.stopped', trial.tStop)
+                # Run 'End Routine' code from presentStim
+                thisExp.addData('allStim', [allPresentedSymbols])
                 # the Routine "trial" was not non-slip safe, so reset the non-slip timer
                 routineTimer.reset()
                 thisExp.nextEntry()
