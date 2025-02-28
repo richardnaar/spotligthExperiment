@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.1),
-    on veebruar 26, 2025, at 14:33
+    on veebruar 28, 2025, at 10:47
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -1624,7 +1624,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         # If the target is in both of the target locations then
                         if 'target' in imageArray[randImage[cond[0]]] and 'target' in imageArray[randImage[cond[1]]]:
                             # If wait time has exceeded
-                            if frameN-frameCount >= waitNextPairFrames:
+                            if frameN-frameCount >= waitNextPairFrames+symShowFrames:
                                 # If last set included target pair and no resp was recorded
                                 if targetPair and not responseGiven:
                                     addData('miss', targetPair, absNumOfTrials, nrOfEntries, 'miss') # Add data
@@ -1668,7 +1668,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                             elif not responseGiven:
                                 addData(t-switchTime, targetPair, absNumOfTrials, nrOfEntries, 1)
                                 if isTraining:
-                                    mySound = sound.Sound('A', octave=4, hamming=True, secs=0.180,volume=1.0)
+                                    mySound = sound.Sound('A', octave=4, hamming=True, secs=0.180,volume=0.5)
                                     mySound.play()
                             nrOfEntries += 1
                             responseGiven = True
@@ -1680,15 +1680,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     if t > stimDur-waitRespTime and imList[0].opacity:
                         for im in imList:
                             im.opacity = 0
-                    
-                    # Final check at end of trial to log missed responses
-                    if t > stimDur-waitRespTime and not responseGiven:
-                        if targetPair:
-                            addData('miss', targetPair, absNumOfTrials, nrOfEntries, 'miss')  # Missed target
-                        elif nrOfEntries == 0:
-                            addData('correct rejection', targetPair, absNumOfTrials, nrOfEntries, 'CR')  # No target, no response
-                        nrOfEntries += 1
-                        responseGiven = True  # Mark as handled
                     
                     # *image_a* updates
                     
@@ -1901,6 +1892,15 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 thisExp.addData('trial.stopped', trial.tStop)
                 # Run 'End Routine' code from presentStim
                 thisExp.addData('allStim', [allPresentedSymbols])
+                
+                # Final check at end of trial to log missed responses
+                if not responseGiven:
+                    if targetPair:
+                        addData('miss', targetPair, absNumOfTrials, nrOfEntries, 'miss')  # Missed target
+                    elif nrOfEntries == 0:
+                        addData('correct rejection', targetPair, absNumOfTrials, nrOfEntries, 'CR')  # No target, no response
+                    nrOfEntries += 1
+                    responseGiven = True  # Mark as handled
                 # the Routine "trial" was not non-slip safe, so reset the non-slip timer
                 routineTimer.reset()
                 thisExp.nextEntry()
