@@ -1,5 +1,9 @@
 % Müller 2003
 
+config.resp = {
+    'resp',     '1',     8;
+    'stim', 	'0',     8;};
+
 config.position = {
     'start',      '0',  2;
     'other',      '1',  2;};
@@ -15,10 +19,6 @@ config.hand = {
     'left',     '0', 7;
     'right',    '1', 7;};
 
-
-config.resp = {
-    'resp',     '1',     8;
-    'stim', 	'0',     8;};
 
 % Similarly, add other categories...
 

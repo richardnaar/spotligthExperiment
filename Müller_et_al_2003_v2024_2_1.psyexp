@@ -92,9 +92,9 @@
         <Param val="False" valType="code" updates="None" name="forceNonSlip"/>
         <Param val="block_intro" valType="code" updates="None" name="name"/>
         <Param val="False" valType="bool" updates="None" name="saveStartStop"/>
-        <Param val="presentInstructionsFor" valType="code" updates="constant" name="skipIf"/>
+        <Param val="" valType="code" updates="constant" name="skipIf"/>
         <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
-        <Param val="" valType="code" updates="constant" name="stopVal"/>
+        <Param val="presentInstructionsFor" valType="code" updates="constant" name="stopVal"/>
         <Param val="False" valType="bool" updates="None" name="useWindowParams"/>
       </RoutineSettingsComponent>
       <CodeComponent name="block_code" plugin="None">
