@@ -4,8 +4,9 @@ Müller, M. M., Malinowski, P., Gruber, T., & Hillyard, S. A. (2003). Sustained 
 
 
 Make sure to:
-- ... Set the monitor refresh rate to either 60 or 120 Hz and make the appropriate selection in the info dialog prior to the experiment.
 - ... Configure the monitor settings in PsychoPy to match the required specifications, including screen size, viewing distance, and resolution. Click on the monitor icon to adjust these settings (by default, the experiment uses monitor settings saved under the name 'spotlight').
+- ... To create new monitor settings, click on the monitor icon in PsychoPy and select New. If you already have a suitable monitor profile saved under a different name, you can update the experiment to use that by going to the Experiment Settings (ratchet icon) > Screen > Monitor.
+- ... Set the monitor refresh rate to either 60 or 120 Hz and make the appropriate selection in the info dialog prior to the experiment.
 - ... Set EEG to 1 in the info dialog (it is off by default, but this can be changed by changing the order in the Experiment Info settings)
 - ... Change the port address (the default can be modified in the Experiment info settings)
 
