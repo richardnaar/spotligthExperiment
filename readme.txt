@@ -9,6 +9,7 @@ Make sure to:
 - ... Set the monitor refresh rate to either 60 or 120 Hz and make the appropriate selection in the info dialog prior to the experiment.
 - ... Set EEG to 1 in the info dialog (it is off by default, but this can be changed by changing the order in the Experiment Info settings)
 - ... Change the port address (the default can be modified in the Experiment info settings)
+- ... Configure the audio output device in PsychoPy.Open the Device Manager (speaker icon in the top toolbar) and ensure that the device named Speakers corresponds to the actual physical speakers or headphones used in the experiment (e.g., Speakers (Realtek(R) Audio)). If necessary, add the correct device via Add device, remove unused devices, and keep the latency mode set to Shared low-latency (recommended).
 
 ---
 
