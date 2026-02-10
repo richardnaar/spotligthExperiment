@@ -62,7 +62,7 @@ The .csv file contains, among others, the following key columns:
 - accuracy: response accuracy
 - RT: response classification and reaction time
 
-For training performance, the target detection rate (TDR) can be computed from the subset of trials where isTraining == 1 and targetPair == TRUE, using the accuracy column.
+For non-training performance, the target detection rate (TDR) can be computed from the subset of trials where isTraining == 0 and targetPair == TRUE, using the accuracy column.
 
 The RT column encodes response outcomes as follows: hits are represented by a decimal value corresponding to the reaction time, misses are labeled "miss" and count as incorrect responses, and false alarms are labeled "false alarm". While false alarms are counted as incorrect responses, they are not included in the TDR calculation when considering only trials in which a target was present (i.e., targetPair == TRUE).
 
