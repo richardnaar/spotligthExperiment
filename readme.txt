@@ -50,6 +50,24 @@ TestRun Mode:
 
 ---
 
+DATA FILES AND VARIABLES
+
+The experiment produces several output files per run. The primary file used for analysis is the .csv file, although the same information (and additional metadata) is also stored in the .psydat file. The .log file is a plain-text file that provides a chronological record of events during the run (e.g., stimulus presentation, timing information, and warnings).
+
+The .csv file contains, among others, the following key columns:
+
+- attendCond: experimental condition
+- isTraining: indicates whether a trial belongs to the training phase (1 = training)
+- targetPair: indicates whether a target was present (TRUE / FALSE)
+- accuracy: response accuracy
+- RT: response classification and reaction time
+
+For training performance, the target detection rate (TDR) can be computed from the subset of trials where isTraining == 1 and targetPair == TRUE, using the accuracy column.
+
+The RT column encodes response outcomes as follows: hits are represented by a decimal value corresponding to the reaction time, misses are labeled "miss" and count as incorrect responses, and false alarms are labeled "false alarm". While false alarms are counted as incorrect responses, they are not included in the TDR calculation when considering only trials in which a target was present (i.e., targetPair == TRUE).
+
+---
+
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.1)
 
 Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
