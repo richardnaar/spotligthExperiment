@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2025.2.4),
-    on jaanuar 15, 2026, at 17:26
+    on veebruar 19, 2026, at 18:24
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -57,6 +57,7 @@ expInfo = {
     'port address': '0x3FF8',
     'testRun': ['0','1'],
     'volume': '0.25',
+    'skipCalib': [1,0],
     'date|hid': data.getDateStr(),
     'expName|hid': expName,
     'expVersion|hid': expVersion,
@@ -73,7 +74,7 @@ or run the experiment with `--pilot` as an argument. To change what pilot
 PILOTING = core.setPilotModeFromArgs()
 # start off with values from experiment settings
 _fullScr = True
-_winSize = [1920, 1080]
+_winSize = [1920, 1079]
 # if in pilot mode, apply overrides according to preferences
 if PILOTING:
     # force windowed mode
@@ -474,7 +475,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     symbolSize = (2.5*k, 3.2*k) # Should scale down compared to boxes (if tranparent)?
     
     # Distance from centre to the edge of the stimuli in deg
-    ecc = [3, 8] # 5.25, 10.25 x (4 or 9) + (width of the stimulus (2.5 deg) / 2)
+    ecc = [3, 8] # 5.25, 10.25 x (4 or 9) + (width of the stimulus (2.5 deg) / 2) or 3/8
     # List of box positions 
     xys = [(ecc[1]*-1,0), (ecc[0]*-1,0),(ecc[0],0), (ecc[1],0)] 
     
@@ -607,6 +608,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         lineWidth=2.0,
         colorSpace='rgb', lineColor='blue', fillColor='red',
         opacity=None, depth=-1.0, interpolate=True)
+    calib_text_on_screen = visual.TextStim(win=win, name='calib_text_on_screen',
+        text='',
+        font='Arial',
+        pos=(0, 2.5), draggable=False, height=1.0, wrapWidth=None, ori=0.0, 
+        color='white', colorSpace='rgb', opacity=None, 
+        languageStyle='LTR',
+        depth=-2.0);
     
     # --- Initialize components for Routine "cond_intro" ---
     text_block_above = visual.TextStim(win=win, name='text_block_above',
@@ -973,6 +981,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         if 'training' in condFile:
             bText = task_texts['bText_training'] # 'Following are the training trials \n\n Press "space" to begin...'
             selectRows = list(range(0,1))
+            if expInfo['skipCalib'] == 1:
+                continueRoutine = False
         else:
             bText = task_texts['bText_experiment'] # 'Following are the experimental trials \n\n Press "space" to begin...'
             selectRows = ''
@@ -1152,7 +1162,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             # create an object to store info about Routine cond_setup
             cond_setup = data.Routine(
                 name='cond_setup',
-                components=[calib_dot],
+                components=[calib_dot, calib_text_on_screen],
             )
             cond_setup.status = NOT_STARTED
             continueRoutine = True
@@ -1163,7 +1173,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             else:
                 nTrials = 40
             
-            if eog_calib and conditions.thisN % 4 == 0:
+            if eog_calib and conditions.thisN % 4 == 0 and expInfo['skipCalib'] == 0:
                 # Choose calibration layout
                 calib_layout = "x"     # "x" (horizontal only) or "grid" (2D)
             
@@ -1196,6 +1206,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             
             
             
+            calib_text_on_screen.setText(task_texts['calib_text'])
             # store start times for cond_setup
             cond_setup.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
             cond_setup.tStart = globalClock.getTime(format='float')
@@ -1299,6 +1310,40 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 if calib_dot.status == STARTED:
                     # update params
                     pass
+                
+                # *calib_text_on_screen* updates
+                
+                # if calib_text_on_screen is starting this frame...
+                if calib_text_on_screen.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                    # keep track of start time/frame for later
+                    calib_text_on_screen.frameNStart = frameN  # exact frame index
+                    calib_text_on_screen.tStart = t  # local t and not account for scr refresh
+                    calib_text_on_screen.tStartRefresh = tThisFlipGlobal  # on global time
+                    win.timeOnFlip(calib_text_on_screen, 'tStartRefresh')  # time at next scr refresh
+                    # add timestamp to datafile
+                    thisExp.timestampOnFlip(win, 'calib_text_on_screen.started')
+                    # update status
+                    calib_text_on_screen.status = STARTED
+                    calib_text_on_screen.setAutoDraw(True)
+                
+                # if calib_text_on_screen is active this frame...
+                if calib_text_on_screen.status == STARTED:
+                    # update params
+                    pass
+                
+                # if calib_text_on_screen is stopping this frame...
+                if calib_text_on_screen.status == STARTED:
+                    # is it time to stop? (based on global clock, using actual start)
+                    if tThisFlipGlobal > calib_text_on_screen.tStartRefresh + 2-frameTolerance:
+                        # keep track of stop time/frame for later
+                        calib_text_on_screen.tStop = t  # not accounting for scr refresh
+                        calib_text_on_screen.tStopRefresh = tThisFlipGlobal  # on global time
+                        calib_text_on_screen.frameNStop = frameN  # exact frame index
+                        # add timestamp to datafile
+                        thisExp.timestampOnFlip(win, 'calib_text_on_screen.stopped')
+                        # update status
+                        calib_text_on_screen.status = FINISHED
+                        calib_text_on_screen.setAutoDraw(False)
                 
                 # check for quit (typically the Esc key)
                 if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -1883,9 +1928,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     
                         if not t > (stimDur - waitRespTime):
                             allPresentedSymbols.append(copy.deepcopy(randomSet))
-                            if int(expInfo['testRun']):
+                            if int(expInfo['testRun']) or (isTraining and thisN < 5):
                                 if 'target' in imList[cond[0]].image and 'target' in imList[cond[1]].image:
-                                    mySound = sound.Sound('A', octave=2, hamming=True, speaker='Speaker', secs=0.180, volume=vol)
+                                    mySound = sound.Sound('A', octave=3, hamming=True, speaker='Speaker', secs=0.180, volume=vol)
                                     mySound.play()
                     
                         shuffle(randImage)  # Shuffle for the next round
