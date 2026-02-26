@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2025.2.4),
-    on veebruar 19, 2026, at 18:24
+    on February 26, 2026, at 19:13
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -44,7 +44,7 @@ deviceManager = hardware.DeviceManager()
 _thisDir = os.path.dirname(os.path.abspath(__file__))
 # store info about the experiment session
 psychopyVersion = '2025.2.4'
-expName = 'Müller_et_al_2003_v2024_2_4beta'  # from the Builder filename that created this script
+expName = 'Müller_et_al_2003_v2026.1.1'  # from the Builder filename that created this script
 expVersion = ''
 # a list of functions to run when the experiment ends (starts off blank)
 runAtExit = []
@@ -143,7 +143,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version=expVersion,
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Users\\pcadmin\\Documents\\dok\\TARU\\PROJEKTID\\EEGManyLabs\\Task\\spotlight_replication\\Müller_et_al_2003_v2024_2_4beta_lastrun.py',
+        originPath='C:\\Users\\pcadmin\\Documents\\dok\\TARU\\PROJEKTID\\EEGManyLabs\\Task\\spotlight_replication\\Müller_et_al_2003_v2026.1.1_lastrun.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='time'
     )
@@ -1434,6 +1434,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 continueRoutine = True
                 # update component parameters for each repeat
                 # Run 'Begin Routine' code from hands
+                rects.contrs = 0.5
+                
                 halfOftrials = int(nTrials/2)
                 
                 # Randomize hands before each block
@@ -1696,7 +1698,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
                     # update/draw components on each frame
                     # Run 'Each Frame' code from iti_code
-                    rects.draw() # Presents place holders (white boxes)
+                    if frameN > 0:
+                        rects.draw() # Presents place holders (white boxes)
                     
                     # *fix_iti* updates
                     
@@ -1792,6 +1795,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 continueRoutine = True
                 # update component parameters for each repeat
                 # Run 'Begin Routine' code from presentStim
+                rects.contrs = 1
+                
                 frameCount = 0
                 responseGiven = False
                 targetPair = False
@@ -1885,6 +1890,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         rects.opacities = opacities
                     else:  # If the presentation is over set back to 1
                         rects.opacities = 1
+                        rects.contrs = 0.5
                     
                     # -----------------------------
                     # Change symbol after every 183.3(3) ms
@@ -1928,7 +1934,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     
                         if not t > (stimDur - waitRespTime):
                             allPresentedSymbols.append(copy.deepcopy(randomSet))
-                            if int(expInfo['testRun']) or (isTraining and thisN < 5):
+                            if int(expInfo['testRun']) or (isTraining and thisN < int(nTrials/2)):
                                 if 'target' in imList[cond[0]].image and 'target' in imList[cond[1]].image:
                                     mySound = sound.Sound('A', octave=3, hamming=True, speaker='Speaker', secs=0.180, volume=vol)
                                     mySound.play()
