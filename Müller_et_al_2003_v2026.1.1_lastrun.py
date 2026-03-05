@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2025.2.4),
-    on February 26, 2026, at 19:13
+    on March 05, 2026, at 14:46
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -58,6 +58,7 @@ expInfo = {
     'testRun': ['0','1'],
     'volume': '0.25',
     'skipCalib': [1,0],
+    'maxLum': '0.75',
     'date|hid': data.getDateStr(),
     'expName|hid': expName,
     'expVersion|hid': expVersion,
@@ -479,12 +480,14 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # List of box positions 
     xys = [(ecc[1]*-1,0), (ecc[0]*-1,0),(ecc[0],0), (ecc[1],0)] 
     
+    mLum = float(expInfo['maxLum'])
+    
     # Array of place holder boxes to be presented on screen
     rects = visual.ElementArrayStim(
         win, name = 'rects', units='deg', 
         fieldPos=(0.0, 0.0), fieldSize=(3, 4), fieldShape='square', 
         nElements=4, sizes= boxSize, xys=xys, 
-        colors=([1.0, 1.0, 1.0]) , colorSpace='rgb', opacities=1, oris=0, 
+        colors= ([mLum, mLum, mLum]), colorSpace='rgb', opacities=1, oris=0, # ([1.0, 1.0, 1.0]) 
         sfs=0, contrs=[1, 1,1,1], phases=0, elementTex='sqr',
         elementMask=None, texRes=48, interpolate=True, 
         autoLog=None, maskParams=None
@@ -1434,7 +1437,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 continueRoutine = True
                 # update component parameters for each repeat
                 # Run 'Begin Routine' code from hands
-                rects.contrs = 0.5
+                #rects.colors=([0.5, 0.5, 0.5])
                 
                 halfOftrials = int(nTrials/2)
                 
@@ -1698,8 +1701,12 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
                     # update/draw components on each frame
                     # Run 'Each Frame' code from iti_code
-                    if frameN > 0:
-                        rects.draw() # Presents place holders (white boxes)
+                    rects.draw() 
+                    
+                    # if you see a plip in the brightness during the iti
+                    # use this instead
+                    #if frameN > 0:
+                    #    rects.draw() # Presents place holders (white boxes)
                     
                     # *fix_iti* updates
                     
@@ -1795,7 +1802,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 continueRoutine = True
                 # update component parameters for each repeat
                 # Run 'Begin Routine' code from presentStim
-                rects.contrs = 1
+                rects.colors=([1.0, 1.0, 1.0])
                 
                 frameCount = 0
                 responseGiven = False
@@ -1890,7 +1897,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         rects.opacities = opacities
                     else:  # If the presentation is over set back to 1
                         rects.opacities = 1
-                        rects.contrs = 0.5
+                    #    rects.colors=([0.5, 0.5, 0.5])
                     
                     # -----------------------------
                     # Change symbol after every 183.3(3) ms
