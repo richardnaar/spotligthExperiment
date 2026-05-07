@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2025.2.4),
-    on March 05, 2026, at 14:46
+    on May 07, 2026, at 20:22
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -58,7 +58,7 @@ expInfo = {
     'testRun': ['0','1'],
     'volume': '0.25',
     'skipCalib': [1,0],
-    'maxLum': '0.75',
+    'maxLum': '0.5',
     'date|hid': data.getDateStr(),
     'expName|hid': expName,
     'expVersion|hid': expVersion,
@@ -74,7 +74,7 @@ or run the experiment with `--pilot` as an argument. To change what pilot
 # work out from system args whether we are running in pilot mode
 PILOTING = core.setPilotModeFromArgs()
 # start off with values from experiment settings
-_fullScr = True
+_fullScr = False
 _winSize = [1920, 1079]
 # if in pilot mode, apply overrides according to preferences
 if PILOTING:
@@ -205,14 +205,11 @@ def setupWindow(expInfo=None, win=None):
     psychopy.visual.Window
         Window in which to run this experiment.
     """
-    if PILOTING:
-        logging.debug('Fullscreen settings ignored as running in pilot mode.')
-    
     if win is None:
         # if not given a window to setup, make one
         win = visual.Window(
             size=_winSize, fullscr=_fullScr, screen=0,
-            winType='pyglet', allowGUI=False, allowStencil=False,
+            winType='pyglet', allowGUI=True, allowStencil=False,
             monitor='spotlight', color=[-1,-1,-1], colorSpace='rgb',
             backgroundImage='', backgroundFit='none',
             blendMode='avg', useFBO=True,
@@ -472,11 +469,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     stimDur = 3.1 + waitRespTime # stimDur = 4.1 # (e.g. 186 + 60 frames with 60 Hz)
     
     k = 0.8 # Just a scaler for rescaling the sizes 
-    boxSize = (2.5, 3.2) # 2.5, 3.2
-    symbolSize = (2.5*k, 3.2*k) # Should scale down compared to boxes (if tranparent)?
+    k2 = 1
+    boxSize = (2.5*k2, 3.2*k2) # 2.5, 3.2
+    symbolSize = (boxSize[0]*k, boxSize[1]*k) # Should scale down compared to boxes (if tranparent)?
+    # symbolSize = (2.5*k, 3.2*k) 
     
     # Distance from centre to the edge of the stimuli in deg
-    ecc = [3, 8] # 5.25, 10.25 x (4 or 9) + (width of the stimulus (2.5 deg) / 2) or 3/8
+    ecc = [5.25, 10.25] # 5.25, 10.25 x (4 or 9) + (width of the stimulus (2.5 deg) / 2) or 3/8
     # List of box positions 
     xys = [(ecc[1]*-1,0), (ecc[0]*-1,0),(ecc[0],0), (ecc[1],0)] 
     
@@ -1473,6 +1472,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 key_block_intro.rt = []
                 _key_block_intro_allKeys = []
                 text_block_below.setText(task_texts['cond_text_hand'] + ' ' + current_hand)
+                please_fixate.setColor([mLum, mLum, mLum], colorSpace='rgb')
                 please_fixate.setText(task_texts['gaze'])
                 # store start times for cond_intro
                 cond_intro.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
@@ -1667,6 +1667,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 rects.opacities = 1 # Set the opacity back up for all the boxes 
                 absNumOfTrials += 1 # Increase the trial counter by 1
                 thisExp.addData('absNumOfTrials', absNumOfTrials) # Send info about trial number to the data file
+                fix_iti.setColor([mLum, mLum, mLum], colorSpace='rgb')
                 # store start times for iti
                 iti.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
                 iti.tStart = globalClock.getTime(format='float')
@@ -1802,7 +1803,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 continueRoutine = True
                 # update component parameters for each repeat
                 # Run 'Begin Routine' code from presentStim
-                rects.colors=([1.0, 1.0, 1.0])
+                #rects.colors=([1.0, 1.0, 1.0])
                 
                 frameCount = 0
                 responseGiven = False
@@ -1823,6 +1824,12 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 eventOnset = None
                 eventResponded = False
                 
+                eventOnset = None
+                eventResponded = False
+                
+                # ADDED: store recent lure onsets
+                lureOnsets = []
+                
                 # List of components
                 imList = [image_a, image_b, image_c, image_d]
                 
@@ -1839,6 +1846,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 if int(expInfo['testRun']):
                     RTs = [(i + 1) + random() for i in range(randint(1, 3))]
                     nDummyResponses = 0
+                fix_trial.setColor([mLum, mLum, mLum], colorSpace='rgb')
                 # store start times for trial
                 trial.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
                 trial.tStart = globalClock.getTime(format='float')
@@ -1902,61 +1910,80 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     # -----------------------------
                     # Change symbol after every 183.3(3) ms
                     # -----------------------------
-                    if frameN % symShowFrames == 0 and not t > stimDur - waitRespTime:  # symShowFrames == 11 frames (on 60 Hz)
+                    if frameN % symShowFrames == 0 and not t > stimDur - waitRespTime:
                     
                         # Take random images from the set
                         randomSet = randImage[0:4]
                         imCount = 0
                         for im in imList:
-                            im.image = imageArray[randomSet[imCount]]  # randImage == [0,1,2,3,4,4,4,4]
+                            im.image = imageArray[randomSet[imCount]]
                             imCount += 1
                     
-                        # --- ADDED: compute current on-screen state (after assignment) ---
-                        is_target = [('target' in im.image) for im in imList]          ### ADDED
-                        att0, att1 = cond[0], cond[1]                                  ### ADDED
-                        hit_now = is_target[att0] and is_target[att1]                  ### ADDED
+                        # Compute current on-screen state
+                        is_target = [('target' in im.image) for im in imList]
+                        att0, att1 = cond[0], cond[1]
+                        hit_now = is_target[att0] and is_target[att1]
                     
-                        # If the target is in both of the target locations then
+                        # -----------------------------
+                        # Target-pair logic
+                        # -----------------------------
                         if hit_now:
-                            # If wait time has exceeded -> start a NEW valid target-pair epoch
                             if frameN - frameCount >= waitNextPairFrames + symShowFrames:
                     
-                                # --- miss-by-timeout is handled below; do NOT add miss here (keeps new rule) ---
+                                # Start a new valid target-pair epoch
+                                eventOnset = t
+                                eventResponded = False
+                                frameCount = frameN
                     
-                                eventOnset = t                                         ### CHANGED (new epoch marker)
-                                eventResponded = False                                 ### CHANGED
-                                frameCount = frameN                                    # (same role as before)
+                                # Target epoch takes priority over previous lure epochs
+                                lureOnsets = []
                     
                             else:
-                                # If wait time is not over yet but random sampling gave another target pair
-                                # then just change one of them randomly to non-target (OLD behavior)
+                                # Break too-early repeated target pair
                                 selectRandLoc = cond[randint(0, 1)]
                                 replaceRandSymb = randint(0, 4)
                                 imList[selectRandLoc].image = nonTargetSet[replaceRandSymb]
-                                randomSet[selectRandLoc] = replaceRandSymb             # keep logging consistent
+                                randomSet[selectRandLoc] = replaceRandSymb
                     
-                                # --- ADDED: recompute state after breaking the pair ---
-                                is_target = [('target' in im.image) for im in imList]  ### ADDED
-                                hit_now = is_target[att0] and is_target[att1]          ### ADDED
+                                # IMPORTANT: recompute after replacement
+                                is_target = [('target' in im.image) for im in imList]
+                                hit_now = is_target[att0] and is_target[att1]
+                    
+                        # -----------------------------
+                        # Lure-event logic for FA windows
+                        # Must be OUTSIDE the hit_now branch
+                        # -----------------------------
+                        single_attended = (is_target[att0] ^ is_target[att1])
+                        intermediate_target = is_target[INTERMEDIATE_IDX]
+                    
+                        if attendCond in ('1+2', '3+4'):
+                            lure_now = single_attended
+                        else:
+                            lure_now = single_attended or intermediate_target
+                    
+                        # Do not treat true target-pair displays as lures
+                        if hit_now:
+                            lure_now = False
+                    
+                        # Only register lures when no target-pair response epoch is active
+                        if lure_now and (eventOnset is None):
+                            lureOnsets.append(t)
+                    
+                        # Keep only recent lure events
+                        lureOnsets = [
+                            onset for onset in lureOnsets
+                            if (t - onset) <= MAX_RT
+                        ]
                     
                         if not t > (stimDur - waitRespTime):
                             allPresentedSymbols.append(copy.deepcopy(randomSet))
                             if int(expInfo['testRun']) or (isTraining and thisN < int(nTrials/2)):
                                 if 'target' in imList[cond[0]].image and 'target' in imList[cond[1]].image:
-                                    mySound = sound.Sound('A', octave=3, hamming=True, speaker='Speaker', secs=0.180, volume=vol)
+                                    mySound = sound.Sound('A', octave=3, hamming=True,
+                                                          speaker='Speaker', secs=0.180, volume=vol)
                                     mySound.play()
                     
-                        shuffle(randImage)  # Shuffle for the next round
-                    
-                    
-                    # -----------------------------
-                    # ADDED: miss-by-timeout (250–1000 ms window)
-                    # -----------------------------
-                    if (eventOnset is not None) and (not eventResponded) and ((t - eventOnset) > MAX_RT):   ### ADDED
-                        addData('miss', True, absNumOfTrials, nrOfEntries, 0)                               ### ADDED
-                        nrOfEntries += 1                                                                    ### ADDED
-                        eventResponded = True                                                               ### ADDED
-                        eventOnset = None                                                                   ### ADDED
+                        shuffle(randImage)
                     
                     
                     # -----------------------------
@@ -1974,49 +2001,70 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     
                     if keys:
                         if 'space' in keys[-1].name:
-                            trigN = '1' + str(isTraining) + trigdic['resp'] + trigdic[attendCond]            ### CHANGED (your newer trig)
+                            trigN = '1' + str(isTraining) + trigdic['resp'] + trigdic[attendCond]
                             t2 = t
                             if not isTraining:
                                 sendTrigger(t-t2, trigN, expInfo['EEG'], 0.05)
                     
-                            # --- CHANGED: RT window relative to last valid target-pair onset ---
-                            rt = None                                                                       ### CHANGED
-                            if eventOnset is not None:                                                      ### CHANGED
-                                rt = t - eventOnset                                                         ### CHANGED
-                            in_window = (rt is not None) and (MIN_RT <= rt <= MAX_RT)                       ### CHANGED
+                            # RT relative to active target-pair epoch
+                            rt = None
+                            if eventOnset is not None:
+                                rt = t - eventOnset
                     
-                            # --- ADDED: FA definition based on CURRENT display state (no FA epochs) ---
-                            is_target = [('target' in im.image) for im in imList]                            ### ADDED
-                            att0, att1 = cond[0], cond[1]                                                    ### ADDED
-                            single_attended = (is_target[att0] ^ is_target[att1])                            ### ADDED
-                            intermediate_target = is_target[INTERMEDIATE_IDX]                                ### ADDED
+                            in_window = (rt is not None) and (MIN_RT <= rt <= MAX_RT)
                     
-                            if attendCond in ('1+2', '3+4'):                                                 ### ADDED
-                                fa_now = single_attended                                                     ### ADDED
-                            else:
-                                fa_now = single_attended or intermediate_target                              ### ADDED
+                            # FA window relative to recent lure onsets
+                            valid_lure_rts = [
+                                t - onset for onset in lureOnsets
+                                if MIN_RT <= (t - onset) <= MAX_RT
+                            ]
                     
-                            # --- scoring ---
-                            if in_window and (not eventResponded):                                           ### CHANGED
+                            fa_in_window = (eventOnset is None) and (len(valid_lure_rts) > 0)
+                    
+                            # -----------------------------
+                            # Scoring
+                            # -----------------------------
+                            if in_window and (not eventResponded):
+                    
                                 # HIT
-                                addData(rt, True, absNumOfTrials, nrOfEntries, 1)                            ### CHANGED
-                                nrOfEntries += 1                                                             ### CHANGED
-                                eventResponded = True                                                        ### CHANGED
-                                eventOnset = None                                                            ### CHANGED
+                                addData(rt, True, absNumOfTrials, nrOfEntries, 1)
+                                nrOfEntries += 1
+                    
+                                eventResponded = True
+                                eventOnset = None
+                                lureOnsets = []
                     
                                 if isTraining:
-                                    mySound = sound.Sound('A', octave=4, hamming=True, speaker='Speaker', secs=0.180, volume=vol)
+                                    mySound = sound.Sound('A', octave=4, hamming=True,
+                                                          speaker='Speaker', secs=0.180, volume=vol)
                                     mySound.play()
                     
-                            elif (eventOnset is None) and fa_now:                                            ### ADDED
-                                # FALSE ALARM (only when NOT in an active target-pair epoch)
-                                addData('false alarm', False, absNumOfTrials, nrOfEntries, 0)                ### ADDED
-                                nrOfEntries += 1                                                             ### ADDED
+                            elif fa_in_window:
                     
-                            # else: ignore (press too early/late relative to target-pair epoch, or not an FA by definition)
+                                # FALSE ALARM to recent lure event
+                                fa_rt = min(valid_lure_rts)
+                    
+                                addData('false alarm', False, absNumOfTrials, nrOfEntries, 0)
+                                nrOfEntries += 1
+                    
+                                lureOnsets = []
+                    
+                            # else: ignore
                     
                         elif 'escape' in keys[-1].name:
                             core.quit()
+                    
+                    # -----------------------------
+                    # Miss-by-timeout
+                    # Place AFTER key handling
+                    # -----------------------------
+                    if (eventOnset is not None) and (not eventResponded) and ((t - eventOnset) > MAX_RT):
+                        addData('miss', True, absNumOfTrials, nrOfEntries, 0)
+                        nrOfEntries += 1
+                    
+                        eventResponded = True
+                        eventOnset = None
+                        lureOnsets = []
                     
                     # Do not show the symbols if the presentation is over (response will be still recorded)
                     if t > stimDur - waitRespTime and imList[0].opacity:
