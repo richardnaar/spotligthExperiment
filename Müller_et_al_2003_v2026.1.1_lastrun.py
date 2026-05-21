@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2025.2.4),
-    on May 07, 2026, at 20:22
+    on May 21, 2026, at 22:57
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -56,7 +56,7 @@ expInfo = {
     'EEG': ['0','1'],
     'port address': '0x3FF8',
     'testRun': ['0','1'],
-    'volume': '0.25',
+    'volume': '0.75',
     'skipCalib': [1,0],
     'maxLum': '0.5',
     'date|hid': data.getDateStr(),
@@ -468,14 +468,14 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # NB! Actual stimulus duration is stimDur - waitRespTime 
     stimDur = 3.1 + waitRespTime # stimDur = 4.1 # (e.g. 186 + 60 frames with 60 Hz)
     
-    k = 0.8 # Just a scaler for rescaling the sizes 
-    k2 = 1
+    k = 0.85 # Just a scaler for rescaling the sizes 
+    k2 = 1.65
     boxSize = (2.5*k2, 3.2*k2) # 2.5, 3.2
     symbolSize = (boxSize[0]*k, boxSize[1]*k) # Should scale down compared to boxes (if tranparent)?
     # symbolSize = (2.5*k, 3.2*k) 
     
     # Distance from centre to the edge of the stimuli in deg
-    ecc = [5.25, 10.25] # 5.25, 10.25 x (4 or 9) + (width of the stimulus (2.5 deg) / 2) or 3/8
+    ecc = [3, 8] # 5.25, 10.25 x (4 or 9) + (width of the stimulus (2.5 deg) / 2) or 3/8
     # List of box positions 
     xys = [(ecc[1]*-1,0), (ecc[0]*-1,0),(ecc[0],0), (ecc[1],0)] 
     
@@ -637,7 +637,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     please_fixate = visual.TextStim(win=win, name='please_fixate',
         text='',
         font='Open Sans',
-        pos=(0, 0), draggable=False, height=0.75, wrapWidth=6.0, ori=0.0, 
+        pos=(0, 0), draggable=False, height=0.45, wrapWidth=6.0, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=-4.0);
