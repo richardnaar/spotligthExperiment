@@ -68,7 +68,7 @@ The RT column encodes response outcomes as follows: hits are represented by a de
 
 ---
 
-This experiment was created using PsychoPy3 Experiment Builder (v2024.2.1)
+This experiment was created using PsychoPy3 Experiment Builder (v2026.1.1)
 
 Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
     PsychoPy2: Experiments in behavior made easy Behav Res 51: 195. 
