@@ -15,7 +15,7 @@ Make sure to:
 
 To ensure that on-screen objects correspond to the intended degrees of visual angle:
 
-- ... Set the viewing distance to 57 cm for debuging. At this distance, degrees and centimeters should match, allowing you to measure objects directly on the screen (e.g., the box should measure 2.5 x 3.2 cm)."
+- ... Set the viewing distance to 57 cm for debuging. At this distance, degrees and centimeters should match, allowing you to measure objects directly on the screen (e.g., the box should measure 2.5 x 3.2 cm).
 
 ---
 
