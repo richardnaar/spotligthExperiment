@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2025.2.4),
-    on June 18, 2026, at 17:36
+    on June 18, 2026, at 17:22
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -144,7 +144,7 @@ def setupData(expInfo, dataDir=None):
     thisExp = data.ExperimentHandler(
         name=expName, version=expVersion,
         extraInfo=expInfo, runtimeInfo=None,
-        originPath='C:\\Users\\pcadmin\\Documents\\dok\\TARU\\PROJEKTID\\EEGManyLabs\\Task\\spotlight_replication\\Müller_et_al_2003_v2026.1.1_lastrun.py',
+        originPath='C:\\Users\\pcadmin\\Documents\\dok\\TARU\\PROJEKTID\\EEGManyLabs\\Task\\spotlight_replication\\Müller_et_al_2003_v2026.1.1.py',
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='time'
     )
@@ -437,7 +437,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         '1+3': '1010', 
         '2+4': '0101', 
         '3+4': '0011', 
-        '0': '0001',# positions from left to right
+        '0': '0001',
         '1': '0010',
         '2': '0011',
         '3': '0100',
@@ -454,7 +454,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             if t < trigDur and t > 0:  # send trigger for 50 ms and do not send the trigger before next flip time
                 port.setData(int(trigN, 2)) 
             else:
-                print(trigN)
                 port.setData(0)
     
     instrFile = 'translations/translation_'+ expInfo['translation'].lower()+'.xlsx'
@@ -1214,6 +1213,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 calib_dot.pos = calibration_positions[current_calib_index]
                 current_x = calibration_positions[current_calib_index][0]
                 trigN = '1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[current_x])]
+            #    print(['start: ', trigN])
+                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[0][0]])])
+                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[1][0]])])
+                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[2][0]])])
+                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[3][0]])])
+                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[4][0]])])
+                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[5][0]])])
             else:
                 continueRoutine = False
             
@@ -1255,6 +1261,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 # Run 'Each Frame' code from cond_setup_code
                 current_point = x_points.index(calibration_positions[current_calib_index][0])
                 if t > 2:
+                    current_x = calibration_positions[current_calib_index][0]
+                    trigN = '1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[current_x])]
                     # --- Key handling ---
                     keys = event.getKeys()
                     if 'space' in keys and eog_calib:
@@ -1267,9 +1275,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         calib_dot.pos = calibration_positions[current_calib_index]
                     # --- Calibration logic ---
                     if eog_calib and not calibration_done:
-                        current_x = calibration_positions[current_calib_index][0]
-                        trigN = '1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[current_x])]
-                        sendTrigger(t-phase_start, trigN, expInfo['EEG'], 0.05)
                         # durations
                         sample_duration = sample_time_first if current_calib_index == 0 else sample_time_default
                 
@@ -1893,7 +1898,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
                     # update/draw components on each frame
                     # Run 'Each Frame' code from presentStim
-                    sendTrigger(t-t2, trigN, expInfo['EEG'], 0.05)
+                    if not isTraining:
+                        sendTrigger(t-t2, trigN, expInfo['EEG'], 0.05)
                     
                     rects.draw()  # Present the boxes
                     
