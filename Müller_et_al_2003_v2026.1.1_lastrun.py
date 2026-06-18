@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2025.2.4),
-    on May 21, 2026, at 22:57
+    on June 18, 2026, at 15:45
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -74,7 +74,7 @@ or run the experiment with `--pilot` as an argument. To change what pilot
 # work out from system args whether we are running in pilot mode
 PILOTING = core.setPilotModeFromArgs()
 # start off with values from experiment settings
-_fullScr = False
+_fullScr = True
 _winSize = [1920, 1079]
 # if in pilot mode, apply overrides according to preferences
 if PILOTING:
@@ -205,11 +205,14 @@ def setupWindow(expInfo=None, win=None):
     psychopy.visual.Window
         Window in which to run this experiment.
     """
+    if PILOTING:
+        logging.debug('Fullscreen settings ignored as running in pilot mode.')
+    
     if win is None:
         # if not given a window to setup, make one
         win = visual.Window(
             size=_winSize, fullscr=_fullScr, screen=0,
-            winType='pyglet', allowGUI=True, allowStencil=False,
+            winType='pyglet', allowGUI=False, allowStencil=False,
             monitor='spotlight', color=[-1,-1,-1], colorSpace='rgb',
             backgroundImage='', backgroundFit='none',
             blendMode='avg', useFBO=True,
@@ -666,7 +669,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         resample=True,
         latencyClass=1,
     )
-    mySound = sound.Sound('A', stereo=True, hamming=True, secs=0.180, speaker='Speaker', name='mySound')
+    mySound = sound.Sound('A', stereo=True, hamming=True, secs=0.100, speaker='Speaker', name='mySound')
     image_a = visual.ImageStim(
         win=win,
         name='image_a', units='deg', 
@@ -1980,7 +1983,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                             if int(expInfo['testRun']) or (isTraining and thisN < int(nTrials/2)):
                                 if 'target' in imList[cond[0]].image and 'target' in imList[cond[1]].image:
                                     mySound = sound.Sound('A', octave=3, hamming=True,
-                                                          speaker='Speaker', secs=0.180, volume=vol)
+                                                          speaker='Speaker', secs=0.100, volume=vol)
                                     mySound.play()
                     
                         shuffle(randImage)
@@ -2036,7 +2039,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     
                                 if isTraining:
                                     mySound = sound.Sound('A', octave=4, hamming=True,
-                                                          speaker='Speaker', secs=0.180, volume=vol)
+                                                          speaker='Speaker', secs=0.100, volume=vol)
                                     mySound.play()
                     
                             elif fa_in_window:
