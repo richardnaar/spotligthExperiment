@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2025.2.4),
-    on June 18, 2026, at 17:22
+    on July 06, 2026, at 15:22
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -59,6 +59,8 @@ expInfo = {
     'volume': '0.75',
     'skipCalib': [1,0],
     'maxLum': '0.5',
+    'trainingSession': [0,1],
+    'eyeTracker': [0,1],
     'date|hid': data.getDateStr(),
     'expName|hid': expName,
     'expVersion|hid': expVersion,
@@ -437,7 +439,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         '1+3': '1010', 
         '2+4': '0101', 
         '3+4': '0011', 
-        '0': '0001',
+        '0': '0001',# positions from left to right
         '1': '0010',
         '2': '0011',
         '3': '0100',
@@ -454,9 +456,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             if t < trigDur and t > 0:  # send trigger for 50 ms and do not send the trigger before next flip time
                 port.setData(int(trigN, 2)) 
             else:
+                print(trigN)
                 port.setData(0)
     
-    instrFile = 'translations/translation_'+ expInfo['translation'].lower()+'.xlsx'
+    if expInfo['trainingSession']:
+        instrFile = 'translations/translation_training_'+ expInfo['translation'].lower()+'.xlsx'
+    else:
+        instrFile = 'translations/translation_'+ expInfo['translation'].lower()+'.xlsx'
     
     # Multiplier that scales the presentation times if the refresh rate is not 60
     frameConst = int(expInfo['refreshRate'])/60 
@@ -556,6 +562,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # For specific use (e.g., hands in translation)
     hands = ['left', 'right']
     hands_in_translation = [task_texts['left_translation'], task_texts['right_translation']]
+    feedback_in_translation = [task_texts['feedback_on_text'], task_texts['feedback_off_text']]
+    slow_text_in_translation = task_texts['slow_text']
     
     # Example: Counting keys starting with 'general_intro'
     partial_key = 'general_intro'
@@ -573,6 +581,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         presentInstructionsFor = 1e6  # Effectively "infinite" 
     
     vol = float(expInfo['volume'])
+    trainingSession = expInfo['trainingSession']
     intro_text = visual.TextStim(win=win, name='intro_text',
         text='',
         font='Open Sans',
@@ -583,6 +592,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     intro_key = keyboard.Keyboard(deviceName='defaultKeyboard')
     
     # --- Initialize components for Routine "block_intro" ---
+    # Run 'Begin Experiment' code from block_code
+    repeatCondN = 1
+    
     block_text = visual.TextStim(win=win, name='block_text',
         text='',
         font='Open Sans',
@@ -622,6 +634,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         depth=-2.0);
     
     # --- Initialize components for Routine "cond_intro" ---
+    # Run 'Begin Experiment' code from hands
+    import math # for ceil
     text_block_above = visual.TextStim(win=win, name='text_block_above',
         text='',
         font='Open Sans',
@@ -633,7 +647,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     text_block_below = visual.TextStim(win=win, name='text_block_below',
         text='',
         font='Open Sans',
-        pos=(0, -5), draggable=False, height=2.0, wrapWidth=30.0, ori=0.0, 
+        pos=(0, -5), draggable=False, height=1.0, wrapWidth=30.0, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=-3.0);
@@ -664,11 +678,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     deviceManager.addDevice(
         deviceName='Speaker',
         index=6.0,
-        name='Speakers (Realtek(R) Audio)',
+        name='Headphones (Realtek(R) Audio)', # Speakers (Realtek(R) Audio) 
         deviceClass='psychopy.hardware.speaker.SpeakerDevice',
         resample=True,
         latencyClass=1,
     )
+    
+    
     mySound = sound.Sound('A', stereo=True, hamming=True, secs=0.100, speaker='Speaker', name='mySound')
     image_a = visual.ImageStim(
         win=win,
@@ -983,14 +999,22 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         continueRoutine = True
         # update component parameters for each repeat
         # Run 'Begin Routine' code from block_code
+        if trainingSession:
+            repeatCondN = 1
+        #    if blocks.thisN > 0:
+            print('should be finished')
+            blocks.finished = True
+        #    conditions.status = FINISHED
+        #    trials.status = FINISHED
+        else:
+            repeatBlockN = 1
+        
         if 'training' in condFile:
             bText = task_texts['bText_training'] # 'Following are the training trials \n\n Press "space" to begin...'
-            selectRows = list(range(0,1))
             if expInfo['skipCalib'] == 1:
                 continueRoutine = False
         else:
             bText = task_texts['bText_experiment'] # 'Following are the experimental trials \n\n Press "space" to begin...'
-            selectRows = ''
         block_text.setText(bText)
         # create starting attributes for block_key_resp
         block_key_resp.keys = []
@@ -1131,7 +1155,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # set up handler to look after randomisation of conditions etc
         conditions = data.TrialHandler2(
             name='conditions',
-            nReps=1.0, 
+            nReps=repeatCondN, 
             method='random', 
             extraInfo=expInfo, 
             originPath=-1, 
@@ -1173,10 +1197,11 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             continueRoutine = True
             # update component parameters for each repeat
             # Run 'Begin Routine' code from cond_setup_code
-            if isTraining:
+            if isTraining and not trainingSession:
                 nTrials = 10 # trials per each row in the condition table
             else:
-                nTrials = 40
+                nTrials = 4 # 40
+                    
             
             if eog_calib and conditions.thisN % 4 == 0 and expInfo['skipCalib'] == 0:
                 # Choose calibration layout
@@ -1213,13 +1238,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 calib_dot.pos = calibration_positions[current_calib_index]
                 current_x = calibration_positions[current_calib_index][0]
                 trigN = '1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[current_x])]
-            #    print(['start: ', trigN])
-                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[0][0]])])
-                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[1][0]])])
-                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[2][0]])])
-                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[3][0]])])
-                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[4][0]])])
-                print('1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[calibration_positions[5][0]])])
             else:
                 continueRoutine = False
             
@@ -1261,8 +1279,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 # Run 'Each Frame' code from cond_setup_code
                 current_point = x_points.index(calibration_positions[current_calib_index][0])
                 if t > 2:
-                    current_x = calibration_positions[current_calib_index][0]
-                    trigN = '1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[current_x])]
                     # --- Key handling ---
                     keys = event.getKeys()
                     if 'space' in keys and eog_calib:
@@ -1275,6 +1291,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         calib_dot.pos = calibration_positions[current_calib_index]
                     # --- Calibration logic ---
                     if eog_calib and not calibration_done:
+                        current_x = calibration_positions[current_calib_index][0]
+                        trigN = '1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[current_x])]
+                        sendTrigger(t-phase_start, trigN, expInfo['EEG'], 0.05)
                         # durations
                         sample_duration = sample_time_first if current_calib_index == 0 else sample_time_default
                 
@@ -1456,6 +1475,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 #rects.colors=([0.5, 0.5, 0.5])
                 
                 halfOftrials = int(nTrials/2)
+                lowTrainingProportion = 1/4
                 
                 # Randomize hands before each block
                 if not trials.thisN:
@@ -1465,9 +1485,26 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 if trials.thisN > halfOftrials-1:
                     current_hand = hands_in_translation[hand_list[0]] # for presenting
                     save_hand = hands[hand_list[0]] # for saving
+                    fb_msg = feedback_in_translation[1]
                 else:
+                    if trials.thisN < halfOftrials*lowTrainingProportion and trainingSession:
+                        slow_msg = slow_text_in_translation +' '+ str(math.ceil(halfOftrials*lowTrainingProportion))
+                        symShowFrames = 11*frameConst*3
+                        waitNextPairFrames = 54*frameConst*3
+                        flipAfterEvery = [element * (frameConst*3) for element in flipAfterOriginal]
+                        stimDur = 3.1*3 + waitRespTime
+                    else:
+                        slow_msg = ''
+                        symShowFrames = 11*frameConst
+                        waitNextPairFrames = 54*frameConst
+                        flipAfterEvery = [element * frameConst for element in flipAfterOriginal]
+                        stimDur = 3.1 + waitRespTime
                     current_hand = hands_in_translation[hand_list[1]]
                     save_hand = hands[hand_list[1]]
+                    if isTraining:
+                        fb_msg = feedback_in_translation[0]
+                    else:
+                        fb_msg = feedback_in_translation[1] 
                 
                 # Define numbers to draw
                 numbers = ['1', '2', '3', '4']
@@ -1488,7 +1525,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 key_block_intro.keys = []
                 key_block_intro.rt = []
                 _key_block_intro_allKeys = []
-                text_block_below.setText(task_texts['cond_text_hand'] + ' ' + current_hand)
+                text_block_below.setText(task_texts['cond_text_hand'] + ' ' + current_hand + '\n' + fb_msg + '\n' + slow_msg)
                 please_fixate.setColor([mLum, mLum, mLum], colorSpace='rgb')
                 please_fixate.setText(task_texts['gaze'])
                 # store start times for cond_intro
@@ -1898,8 +1935,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
                     # update/draw components on each frame
                     # Run 'Each Frame' code from presentStim
-                    if not isTraining:
-                        sendTrigger(t-t2, trigN, expInfo['EEG'], 0.05)
+                    sendTrigger(t-t2, trigN, expInfo['EEG'], 0.05)
                     
                     rects.draw()  # Present the boxes
                     
@@ -2350,7 +2386,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 conditions.status = STARTED
             thisExp.nextEntry()
             
-        # completed 1.0 repeats of 'conditions'
+        # completed repeatCondN repeats of 'conditions'
         conditions.status = FINISHED
         
         if thisSession is not None:
