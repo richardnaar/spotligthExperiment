@@ -30,13 +30,13 @@ function [hz, evecs, evals, covAt, maxcomp, maps, snrR, snrE, snrRs, snrEs, elec
 
 
 if ~nElec; nElec = EEG.nbchan; end
-if ~ozLoc; ozLoc = strcmpi(electrode1,{elocs.labels}); end % ozLoc = strcmpi(electrode1,{EEG.chanlocs.labels})
 if isempty(elocs); elocs = EEG.chanlocs; end
+if ~ozLoc; ozLoc = strcmpi(electrode1,{elocs.labels}); end % ozLoc = strcmpi(electrode1,{EEG.chanlocs.labels})
 ncomps2plot = 4; % this is just for plotting
 % set resolution and window parameters
 freso =  0.5;
 nfft  = ceil( EEG.srate/freso ); % .1 Hz resolution
-hz    = linspace(0,EEG.srate,nfft);
+hz = (0:nfft-1) * EEG.srate / nfft; % hz    = linspace(0,EEG.srate,nfft);
 
 peakwidt  = .5; % FWHM at peak frequency
 neighfreq = 1;  % distance of neighboring frequencies away from peak frequency, +/- in Hz
@@ -49,20 +49,23 @@ fdatAt = bsxfun(@minus,fdatAt,mean(fdatAt,2));
 covAt  = (fdatAt*fdatAt')/diff(tidx);
 
 
-% compute covariance matrix for lower neighbor 1
+% compute covariance matrix for upper neighbor 1
 fdatLo = filterFGx(data,EEG.srate,peakfreq+neighfreq,neighwidt);
 fdatLo = reshape( fdatLo(:,tidx(1):tidx(2),:), nElec,[] );
 fdatLo = bsxfun(@minus,fdatLo,mean(fdatLo,2));
 covLo  = (fdatLo*fdatLo')/diff(tidx);
 
-% compute covariance matrix for upper neighbor
+% compute covariance matrix for lower neighbor
 fdatHi = filterFGx(data,EEG.srate,peakfreq-neighfreq,neighwidt);
 fdatHi = reshape( fdatHi(:,tidx(1):tidx(2),:), nElec,[] );
 fdatHi = bsxfun(@minus,fdatHi,mean(fdatHi,2));
 covHi  = (fdatHi*fdatHi')/diff(tidx);
 
 % perform generalized eigendecomposition. This is the meat & potatos of RESS
-[evecs,evals] = eig(covAt,(covHi+covLo)/2);
+covNoise = (covHi + covLo) / 2;
+lambda = 0.01;
+covNoise = covNoise + eye(nElec) * lambda * trace(covNoise) / nElec;
+[evecs,evals] = eig(covAt,covNoise); % [evecs,evals] = eig(covAt,(covHi+covLo)/2);
 [evals,sidx]  = sort(diag(evals),'descend' );
 evecs = evecs(:,sidx);
 
@@ -96,11 +99,11 @@ elecx = dataX(ozLoc,:,:);
 
 % SNR
 [snrR,snrE] = deal(zeros(size(hz)));
-skipbins =  10; %  hard-coded!
-numbins  = 20+skipbins; %   also hard-coded!
+% skipbins =  10; %  hard-coded!
+% numbins  = 20+skipbins; %   also hard-coded!
 
-skipbins =  2; %  hard-coded!
-numbins  = 4+skipbins; %   also hard-coded!
+skipbins =  1; %  hard-coded!
+numbins  = 2+skipbins; %   also hard-coded!
 
 % loop over frequencies and compute SNR
 for hzi=numbins+1:length(hz)-numbins-1

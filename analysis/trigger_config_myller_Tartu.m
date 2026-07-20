@@ -1,13 +1,13 @@
 % Müller 2003
 
-config.training = {
-    'training',     '1',     5;
-    'experiment', 	'0',     5;};
-
 config.position = {
     'start',      '11',  6:7;
     'calib',      '10',  6:7;
     'resp',       '00',  6:7;};
+
+config.training = {
+    'training',     '1',     5;
+    'experiment', 	'0',     5;};
 
 config.cond = {
     '1+2',       '1100',  8:11;
