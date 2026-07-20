@@ -2,7 +2,7 @@ Replication of the task in:
 
 Müller, M. M., Malinowski, P., Gruber, T., & Hillyard, S. A. (2003). Sustained division of the attentional spotlight. Nature, 424(6946), 309-312. https://doi.org/10.1038/nature01812
 
-# Experimental structure
+## Experimental structure
 
 The task is organized into blocks of 40 trials. Blocks are presented in a pseudorandom order, constrained so that the same experimental condition is not presented in more than two consecutive blocks.
 
