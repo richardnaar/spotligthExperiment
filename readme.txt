@@ -2,18 +2,19 @@ Replication of the task in:
 
 Müller, M. M., Malinowski, P., Gruber, T., & Hillyard, S. A. (2003). Sustained division of the attentional spotlight. Nature, 424(6946), 309-312. https://doi.org/10.1038/nature01812
 
-Experimental structure
+# Experimental structure
 
 The task is organized into blocks of 40 trials. Blocks are presented in a pseudorandom order, constrained so that the same experimental condition is not presented in more than two consecutive blocks.
 
 At the beginning of each block, the starting response hand is selected randomly. The response hand is switched halfway through the block, after trial 20. An instruction screen is presented before each block and again before the halfway hand switch. The screen specifies:
 
-the locations to be attended (e.g., locations 1 and 3);
-the response hand to be used;
-whether a tone indicating the presence of a target pair will be presented;
-whether correct-response feedback will be provided; and
-the number of slowed-down trials at the beginning of the block.
-Training session
+* the locations to be attended (e.g., locations 1 and 3);
+* the response hand to be used;
+* whether a tone indicating the presence of a target pair will be presented;
+* whether correct-response feedback will be provided; and
+* the number of slowed-down trials at the beginning of the block.
+
+# Training session
 
 A separate training session can be run by setting trainingSession to 1 in the Info Dialog. The session lasts approximately one hour and should be completed on the same day as the main experiment, without EEG recording (EEG = 0).
 
@@ -38,7 +39,7 @@ Make sure to:
 - ... Configure the audio output device in PsychoPy.Open the Device Manager (speaker icon in the top toolbar) and ensure that the device named Speakers corresponds to the actual physical speakers or headphones used in the experiment (e.g., Speakers (Realtek(R) Audio)). If necessary, add the correct device via Add device, remove unused devices, and keep the latency mode set to Shared low-latency (recommended).
 - ... Set eyeTracker to 1 only when eye tracking is used. When enabled, verify that Experiment Settings (ratchet icon) > Data > Save hdf5 file is selected. Note: If the relevant eye-tracker plugin is not installed, the Eyetracker device menu may contain only None and MouseGaze. The specific eye tracker option should become available after the plugin has been installed and PsychoPy has been restarted.
 
-Eye-tracking setup
+# Eye-tracking setup
 
 Support for physical eye trackers is provided through device-specific PsychoPy plugins and may not be included in the default installation. To configure a Tobii eye tracker (similar to other trackers such as GazePoint):
 
@@ -60,7 +61,7 @@ To ensure that on-screen objects correspond to the intended degrees of visual an
 
 ---
 
-Adding and Managing Translations
+# Adding and Managing Translations
 
 This experiment supports multiple languages through external translation files located in the translations/ directory. Each translation file follows the naming convention:
 
@@ -91,7 +92,7 @@ TestRun Mode:
 
 ---
 
-DATA FILES AND VARIABLES
+# DATA FILES AND VARIABLES
 
 The experiment produces several output files per run. The primary file used for analysis is the .csv file, although the same information (and additional metadata) is also stored in the .psydat file. The .log file is a plain-text file that provides a chronological record of events during the run (e.g., stimulus presentation, timing information, and warnings).
 
