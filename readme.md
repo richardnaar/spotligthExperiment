@@ -18,6 +18,8 @@ At the beginning of each block, the starting response hand is selected at random
 
 > **Note:** Because the condition file (conditions.xlsx) contains exactly one row per experimental condition, a full random shuffle of that file on each repeat is sufficient to guarantee that the same condition is never presented in more than two consecutive blocks (the only point where a repeat could occur is across the boundary between two shuffles). If additional rows or duplicate conditions are ever added to conditions.xlsx, this guarantee no longer holds automatically and an explicit consecutive-repeat check would need to be added to the block-ordering code.
 
+> **macOS note:** Rush mode may not be available on macOS. It can be disabled from Experiment Settings (see ratchet icon from the menue).
+
 ## Practice in the experimental session
 
 The experimental session begins with a brief practice phase consisting of four blocks of 10 trials (40 practice trials in total). The response hand is switched halfway through each block, after trial 5.
@@ -48,19 +50,22 @@ The final four blocks, comprising the last third of the training session, are in
 
 - Configure the monitor settings in PsychoPy to match the required screen size, viewing distance, and resolution. Click the monitor icon to adjust these settings. By default, the experiment uses the monitor profile named `spotlight`.
 - To create a monitor profile, click the monitor icon and select **New**. To use an existing profile saved under another name, open **Experiment Settings (ratchet icon) > Screen > Monitor** and select it.
-- Set the monitor refresh rate to either 60 or 120 Hz and select the corresponding `refreshRate` value in the Experiment Info dialog before starting the experiment.
+- Set the monitor refresh rate to either 60, 120, 180, 240 Hz and select the corresponding `refreshRate` value in the Experiment Info dialog before starting the experiment.
 
 ### Session and EEG configuration
 
 - For the main EEG session, set `trainingSession` to `0` and `EEG` to `1`.
 - For the separate training session, set `trainingSession` to `1` and `EEG` to `0`.
 - Verify the EEG port address before recording. The default can be changed in the Experiment Info settings.
+- Change the port address (the default can be modified in the Experiment info settings)
 
 > **Note:** `EEG` is set to `0` by default. This default can be changed by reordering the choices in the Experiment Info settings.
 
 ### Audio configuration
 
-Open the PsychoPy Device Manager using the speaker icon in the top toolbar. Ensure that the device named `Speakers` corresponds to the physical speakers or headphones used in the experiment (e.g., `Speakers (Realtek(R) Audio)`). If necessary, select **Add device**, add the correct output device, and remove unused devices. Keep the latency mode set to **Shared low-latency (recommended)**.
+Open the PsychoPy Device Manager using the speaker icon in the top toolbar. Ensure that the device named `Speakers` corresponds to the physical speakers or headphones used in the experiment (e.g., `Speakers (Realtek(R) Audio)`). If necessary, select **Add device**, add the correct output device, and remove unused devices. Keep the latency mode set to **Shared low-latency (recommended)**. Audio configuration may require additional attention on macOS; more detailed instructions will be added.
+
+> **Note:**
 
 ### Eye-tracking setup
 
