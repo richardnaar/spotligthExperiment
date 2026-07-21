@@ -1,8 +1,8 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-This experiment was created using PsychoPy3 Experiment Builder (v2025.2.4),
-    on July 06, 2026, at 15:22
+This experiment was created using PsychoPy3 Experiment Builder (v2026.1.1),
+    on juuli 21, 2026, at 15:21
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -11,16 +11,12 @@ If you publish work using this script the most relevant publication is:
 
 """
 
-import psychopy
-psychopy.useVersion('2025.2.4')
-
-
 # --- Import packages ---
 from psychopy import locale_setup
 from psychopy import prefs
 from psychopy import plugins
 plugins.activatePlugins()
-from psychopy import sound, gui, visual, core, data, event, logging, clock, colors, layout, hardware
+from psychopy import sound, gui, visual, core, data, event, logging, clock, colors, layout, hardware, iohub
 from psychopy.tools import environmenttools
 from psychopy.constants import (
     NOT_STARTED, STARTED, PLAYING, PAUSED, STOPPED, STOPPING, FINISHED, PRESSED, 
@@ -36,6 +32,8 @@ import sys  # to get file system encoding
 
 import psychopy.iohub as io
 from psychopy.hardware import keyboard
+from psychopy.hardware.eyetracker import EyetrackerControl
+from psychopy.hardware.eyetracker import EyetrackerCalibration
 
 # --- Setup global variables (available in all functions) ---
 # create a device manager to handle hardware (keyboards, mice, mirophones, speakers, etc.)
@@ -43,7 +41,7 @@ deviceManager = hardware.DeviceManager()
 # ensure that relative paths start from the same directory as this script
 _thisDir = os.path.dirname(os.path.abspath(__file__))
 # store info about the experiment session
-psychopyVersion = '2025.2.4'
+psychopyVersion = '2026.1.1'
 expName = 'Müller_et_al_2003_v2026.1.1'  # from the Builder filename that created this script
 expVersion = ''
 # a list of functions to run when the experiment ends (starts off blank)
@@ -51,16 +49,16 @@ runAtExit = []
 # information about this experiment
 expInfo = {
     'participant': f"{randint(0, 999999):06.0f}",
-    'refreshRate': ['60','120'],
+    'refreshRate': ['60','120', '180', '240'],
     'translation': ['ENG','EST'],
     'EEG': ['0','1'],
     'port address': '0x3FF8',
     'testRun': ['0','1'],
     'volume': '0.75',
-    'skipCalib': [1,0],
+    'eyeTracker': [0,1],
+    'eogCalib': [0,1],
     'maxLum': '0.5',
     'trainingSession': [0,1],
-    'eyeTracker': [0,1],
     'date|hid': data.getDateStr(),
     'expName|hid': expName,
     'expVersion|hid': expVersion,
@@ -150,6 +148,8 @@ def setupData(expInfo, dataDir=None):
         savePickle=True, saveWideText=True,
         dataFileName=dataDir + os.sep + filename, sortColumns='time'
     )
+    # store pilot mode in data file
+    thisExp.addData('piloting', PILOTING, priority=priority.LOW)
     thisExp.setPriority('thisRow.t', priority.CRITICAL)
     thisExp.setPriority('expName', priority.LOW)
     # return experiment handler
@@ -266,6 +266,15 @@ def setupDevices(expInfo, thisExp, win):
     """
     # --- Setup input devices ---
     ioConfig = {}
+    # setup eyetracking
+    ioConfig['eyetracker.hw.mouse.EyeTracker'] = {
+        'name': 'tracker',
+        'controls': {
+            'move': [],
+            'blink':['MIDDLE_BUTTON'],
+            'saccade_threshold': 0.5,
+        },
+    }
     
     # Setup iohub keyboard
     ioConfig['Keyboard'] = dict(use_keymap='psychopy')
@@ -278,6 +287,7 @@ def setupDevices(expInfo, thisExp, win):
     
     # store ioServer object in the device manager
     deviceManager.ioServer = ioServer
+    deviceManager.devices['eyetracker'] = ioServer.getDevice('tracker')
     
     # create a default keyboard (e.g. to check for escape)
     if deviceManager.getDevice('defaultKeyboard') is None:
@@ -456,7 +466,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             if t < trigDur and t > 0:  # send trigger for 50 ms and do not send the trigger before next flip time
                 port.setData(int(trigN, 2)) 
             else:
-                print(trigN)
                 port.setData(0)
     
     if expInfo['trainingSession']:
@@ -522,7 +531,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     nonTargetSet = imageArray[0:4] 
     
     # This helps with data entries (see the code component in the trial routine)
-    def addData(rt, isPair, trials, nrOfEntries, accuracy):
+    def addData(rt, isPair, sndFeedback_save, fb_pairs_save, trials, nrOfEntries, slowedDowntrials,isTraining, accuracy):
     #    if nrOfEntries > 0:
     #        thisExp.nextEntry()
         thisExp.nextEntry()
@@ -531,6 +540,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         thisExp.addData('targetPair', isPair)
         thisExp.addData('absNumOfTrials', trials)
         thisExp.addData('accuracy', accuracy)
+        thisExp.addData('slowTrial', slowedDowntrials)
+        thisExp.addData('sndFeedback', sndFeedback_save)
+        thisExp.addData('sndPairs', fb_pairs_save)
+        thisExp.addData('isTraining', isTraining)
     
     # Frame flipping schedule
     flipAfterOriginal = [4, 7, 3, 5] # Flip after that many frames (on 60 hz monitor)
@@ -562,7 +575,9 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # For specific use (e.g., hands in translation)
     hands = ['left', 'right']
     hands_in_translation = [task_texts['left_translation'], task_texts['right_translation']]
-    feedback_in_translation = [task_texts['feedback_on_text'], task_texts['feedback_off_text']]
+    feedback_snd_translation = [task_texts['feedback_on_text'], task_texts['feedback_off_text']]
+    pair_snd_translation = [task_texts['pairs_sound_on_text'], task_texts['pairs_sound_off_text']]
+    
     slow_text_in_translation = task_texts['slow_text']
     
     # Example: Counting keys starting with 'general_intro'
@@ -582,14 +597,36 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     vol = float(expInfo['volume'])
     trainingSession = expInfo['trainingSession']
+    eyeTrackerOn = expInfo['eyeTracker']
+    
+    if trainingSession:
+    #    blockRowIndx = range(0,1)
+        repeatBlockN = 1 
+    else:
+        repeatBlockN = 2
+    #    blockRowIndx = ''
     intro_text = visual.TextStim(win=win, name='intro_text',
         text='',
         font='Open Sans',
-        pos=(0, 0), draggable=False, height=1.0, wrapWidth=30.0, ori=0.0, 
+        pos=(0, 0), draggable=False, height=1.0, wrapWidth=32.0, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=-1.0);
     intro_key = keyboard.Keyboard(deviceName='defaultKeyboard')
+    
+    # --- Initialize components for Routine "calib_instr" ---
+    calib_instr_on_screen = visual.TextStim(win=win, name='calib_instr_on_screen',
+        text='',
+        font='Arial',
+        pos=(0, 0), draggable=False, height=1.0, wrapWidth=30.0, ori=0.0, 
+        color='white', colorSpace='rgb', opacity=None, 
+        languageStyle='LTR',
+        depth=-1.0);
+    calib_instr_key = keyboard.Keyboard(deviceName='defaultKeyboard')
+    etRecord = EyetrackerControl(
+        tracker=eyetracker,
+        actionType='Start Only'
+    )
     
     # --- Initialize components for Routine "block_intro" ---
     # Run 'Begin Experiment' code from block_code
@@ -606,7 +643,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # --- Initialize components for Routine "cond_setup" ---
     # Run 'Begin Experiment' code from cond_setup_code
-    eog_calib = 1
+    eog_calib = expInfo['eogCalib']
     
     def make_positions(layout):
         if layout == "x":
@@ -647,7 +684,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     text_block_below = visual.TextStim(win=win, name='text_block_below',
         text='',
         font='Open Sans',
-        pos=(0, -5), draggable=False, height=1.0, wrapWidth=30.0, ori=0.0, 
+        pos=(0, -6), draggable=False, height=1.0, wrapWidth=30.0, ori=0.0, 
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=-3.0);
@@ -678,7 +715,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     deviceManager.addDevice(
         deviceName='Speaker',
         index=6.0,
-        name='Headphones (Realtek(R) Audio)', # Speakers (Realtek(R) Audio) 
+        name='Speakers (Realtek(R) Audio)', # Speakers (Realtek(R) Audio)  Headphones (Realtek(R) Audio)
         deviceClass='psychopy.hardware.speaker.SpeakerDevice',
         resample=True,
         latencyClass=1,
@@ -686,6 +723,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     
     mySound = sound.Sound('A', stereo=True, hamming=True, secs=0.100, speaker='Speaker', name='mySound')
+    
+    if expInfo['eyeTracker'] == '1':
+        trainingList = ['experiment','training']
+    
     image_a = visual.ImageStim(
         win=win,
         name='image_a', units='deg', 
@@ -725,6 +766,12 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         color='white', colorSpace='rgb', opacity=None, 
         languageStyle='LTR',
         depth=-5.0);
+    roi = visual.ROI(win, name='roi', device=eyetracker,
+        debug=False,
+        shape='circle',
+        pos=(0, 0), size=(2, 2), 
+        anchor='center', ori=0.0, depth=-6
+        )
     
     # --- Initialize components for Routine "outro" ---
     outro_text = visual.TextStim(win=win, name='outro_text',
@@ -961,13 +1008,283 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     
     # set up handler to look after randomisation of conditions etc
+    eyeTracker = data.TrialHandler2(
+        name='eyeTracker',
+        nReps=eyeTrackerOn, 
+        method='random', 
+        extraInfo=expInfo, 
+        originPath=-1, 
+        trialList=[None], 
+        seed=None, 
+        isTrials=False, 
+    )
+    thisExp.addLoop(eyeTracker)  # add the loop to the experiment
+    thisEyeTracker = eyeTracker.trialList[0]  # so we can initialise stimuli with some values
+    # abbreviate parameter names if possible (e.g. rgb = thisEyeTracker.rgb)
+    if thisEyeTracker != None:
+        for paramName in thisEyeTracker:
+            globals()[paramName] = thisEyeTracker[paramName]
+    
+    for thisEyeTracker in eyeTracker:
+        eyeTracker.status = STARTED
+        if hasattr(thisEyeTracker, 'status'):
+            thisEyeTracker.status = STARTED
+        currentLoop = eyeTracker
+        thisExp.timestampOnFlip(win, 'thisRow.t', format=globalClock.format)
+        # abbreviate parameter names if possible (e.g. rgb = thisEyeTracker.rgb)
+        if thisEyeTracker != None:
+            for paramName in thisEyeTracker:
+                globals()[paramName] = thisEyeTracker[paramName]
+        
+        # --- Prepare to start Routine "calib_instr" ---
+        # create an object to store info about Routine calib_instr
+        calib_instr = data.Routine(
+            name='calib_instr',
+            components=[calib_instr_on_screen, calib_instr_key, etRecord],
+        )
+        calib_instr.status = NOT_STARTED
+        continueRoutine = True
+        # update component parameters for each repeat
+        # Run 'Begin Routine' code from tracker_reminder
+        print(
+            "Reminder: If you are using an eye tracker, enable HDF5 data saving in "
+            "Settings (cogwheel icon > Data > Save hdf5 file)."
+        )
+        calib_instr_on_screen.setText(task_texts['bText_training'])
+        # create starting attributes for calib_instr_key
+        calib_instr_key.keys = []
+        calib_instr_key.rt = []
+        _calib_instr_key_allKeys = []
+        # store start times for calib_instr
+        calib_instr.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
+        calib_instr.tStart = globalClock.getTime(format='float')
+        calib_instr.status = STARTED
+        thisExp.addData('calib_instr.started', calib_instr.tStart)
+        calib_instr.maxDuration = None
+        # keep track of which components have finished
+        calib_instrComponents = calib_instr.components
+        for thisComponent in calib_instr.components:
+            thisComponent.tStart = None
+            thisComponent.tStop = None
+            thisComponent.tStartRefresh = None
+            thisComponent.tStopRefresh = None
+            if hasattr(thisComponent, 'status'):
+                thisComponent.status = NOT_STARTED
+        # reset timers
+        t = 0
+        _timeToFirstFrame = win.getFutureFlipTime(clock="now")
+        frameN = -1
+        
+        # --- Run Routine "calib_instr" ---
+        thisExp.currentRoutine = calib_instr
+        calib_instr.forceEnded = routineForceEnded = not continueRoutine
+        while continueRoutine:
+            # if trial has changed, end Routine now
+            if hasattr(thisEyeTracker, 'status') and thisEyeTracker.status == STOPPING:
+                continueRoutine = False
+            # get current time
+            t = routineTimer.getTime()
+            tThisFlip = win.getFutureFlipTime(clock=routineTimer)
+            tThisFlipGlobal = win.getFutureFlipTime(clock=None)
+            frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
+            # update/draw components on each frame
+            
+            # *calib_instr_on_screen* updates
+            
+            # if calib_instr_on_screen is starting this frame...
+            if calib_instr_on_screen.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                # keep track of start time/frame for later
+                calib_instr_on_screen.frameNStart = frameN  # exact frame index
+                calib_instr_on_screen.tStart = t  # local t and not account for scr refresh
+                calib_instr_on_screen.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(calib_instr_on_screen, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.timestampOnFlip(win, 'calib_instr_on_screen.started')
+                # update status
+                calib_instr_on_screen.status = STARTED
+                calib_instr_on_screen.setAutoDraw(True)
+            
+            # if calib_instr_on_screen is active this frame...
+            if calib_instr_on_screen.status == STARTED:
+                # update params
+                pass
+            
+            # *calib_instr_key* updates
+            waitOnFlip = False
+            
+            # if calib_instr_key is starting this frame...
+            if calib_instr_key.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                # keep track of start time/frame for later
+                calib_instr_key.frameNStart = frameN  # exact frame index
+                calib_instr_key.tStart = t  # local t and not account for scr refresh
+                calib_instr_key.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(calib_instr_key, 'tStartRefresh')  # time at next scr refresh
+                # update status
+                calib_instr_key.status = STARTED
+                # keyboard checking is just starting
+                waitOnFlip = True
+                win.callOnFlip(calib_instr_key.clock.reset)  # t=0 on next screen flip
+                win.callOnFlip(calib_instr_key.clearEvents, eventType='keyboard')  # clear events on next screen flip
+            if calib_instr_key.status == STARTED and not waitOnFlip:
+                theseKeys = calib_instr_key.getKeys(keyList=['space'], ignoreKeys=["escape"], waitRelease=False)
+                _calib_instr_key_allKeys.extend(theseKeys)
+                if len(_calib_instr_key_allKeys):
+                    calib_instr_key.keys = _calib_instr_key_allKeys[-1].name  # just the last key pressed
+                    calib_instr_key.rt = _calib_instr_key_allKeys[-1].rt
+                    calib_instr_key.duration = _calib_instr_key_allKeys[-1].duration
+                    # a response ends the routine
+                    continueRoutine = False
+            
+            # *etRecord* updates
+            
+            # if etRecord is starting this frame...
+            if etRecord.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                # keep track of start time/frame for later
+                etRecord.frameNStart = frameN  # exact frame index
+                etRecord.tStart = t  # local t and not account for scr refresh
+                etRecord.tStartRefresh = tThisFlipGlobal  # on global time
+                win.timeOnFlip(etRecord, 'tStartRefresh')  # time at next scr refresh
+                # add timestamp to datafile
+                thisExp.timestampOnFlip(win, 'etRecord.started')
+                # update status
+                etRecord.status = STARTED
+                etRecord.start()
+            if etRecord.status == STARTED:
+                etRecord.tStop = t  # not accounting for scr refresh
+                etRecord.tStopRefresh = tThisFlipGlobal  # on global time
+                etRecord.frameNStop = frameN  # exact frame index
+                etRecord.status = FINISHED
+            
+            # check for quit (typically the Esc key)
+            if defaultKeyboard.getKeys(keyList=["escape"]):
+                thisExp.status = FINISHED
+            if thisExp.status == FINISHED or endExpNow:
+                endExperiment(thisExp, win=win)
+                return
+            # pause experiment here if requested
+            if thisExp.status == PAUSED:
+                pauseExperiment(
+                    thisExp=thisExp, 
+                    win=win, 
+                    timers=[routineTimer, globalClock], 
+                    currentRoutine=calib_instr,
+                )
+                # skip the frame we paused on
+                continue
+            
+            # has a Component requested the Routine to end?
+            if not continueRoutine:
+                calib_instr.forceEnded = routineForceEnded = True
+            # has the Routine been forcibly ended?
+            if calib_instr.forceEnded or routineForceEnded:
+                break
+            # has every Component finished?
+            continueRoutine = False
+            for thisComponent in calib_instr.components:
+                if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
+                    continueRoutine = True
+                    break  # at least one component has not yet finished
+            
+            # refresh the screen
+            if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
+                win.flip()
+        
+        # --- Ending Routine "calib_instr" ---
+        for thisComponent in calib_instr.components:
+            if hasattr(thisComponent, "setAutoDraw"):
+                thisComponent.setAutoDraw(False)
+        # store stop times for calib_instr
+        calib_instr.tStop = globalClock.getTime(format='float')
+        calib_instr.tStopRefresh = tThisFlipGlobal
+        thisExp.addData('calib_instr.stopped', calib_instr.tStop)
+        # Run 'End Routine' code from tracker_reminder
+        # calib_instr_on_screen.opacity = 0
+        # check responses
+        if calib_instr_key.keys in ['', [], None]:  # No response was made
+            calib_instr_key.keys = None
+        eyeTracker.addData('calib_instr_key.keys',calib_instr_key.keys)
+        if calib_instr_key.keys != None:  # we had a response
+            eyeTracker.addData('calib_instr_key.rt', calib_instr_key.rt)
+            eyeTracker.addData('calib_instr_key.duration', calib_instr_key.duration)
+        # the Routine "calib_instr" was not non-slip safe, so reset the non-slip timer
+        routineTimer.reset()
+        # define target for calibration
+        calibrationTarget = visual.TargetStim(win, 
+            name='calibrationTarget',
+            radius=0.25, 
+            fillColor='', 
+            borderColor='white', 
+            lineWidth=2.0, 
+            innerRadius=0.1, 
+            innerFillColor='green', 
+            innerBorderColor='white', 
+            innerLineWidth=2.0,
+            colorSpace='rgb', 
+            units=None
+        )
+        # define parameters for calibration
+        calibration = EyetrackerCalibration(win, 
+            eyetracker, calibrationTarget,
+            units=None, colorSpace='rgb',
+            progressMode='time', targetDur=1.5, expandScale=1.5,
+            targetLayout='NINE_POINTS', randomisePos=True, textColor='white',
+            movementAnimation=True, targetDelay=1.0
+        )
+        # run calibration
+        calibration.run()
+        # clear any keypresses from during calibration so they don't interfere with the experiment
+        defaultKeyboard.clearEvents()
+        # the Routine "calibration" was not non-slip safe, so reset the non-slip timer
+        routineTimer.reset()
+        # define target for validation
+        validationTarget = visual.TargetStim(win, 
+            name='validationTarget',
+            radius=0.25, fillColor='', borderColor='white', lineWidth=2.0,
+            innerRadius=0.1, innerFillColor='green', innerBorderColor='white', innerLineWidth=2.0,
+            colorSpace='rgb', units=None
+        )
+        # define parameters for validation
+        validation = iohub.ValidationProcedure(win,
+            target=validationTarget,
+            gaze_cursor='green', 
+            positions='NINE_POINTS', randomize_positions=True,
+            expand_scale=1.5, target_duration=1.5,
+            enable_position_animation=True, target_delay=1.0,
+            progress_on_key=None, text_color='auto',
+            show_results_screen=True, save_results_screen=False,
+            color_space='rgb', unit_type=None
+        )
+        # run validation
+        validation.run()
+        # clear any keypresses from during validation so they don't interfere with the experiment
+        defaultKeyboard.clearEvents()
+        # the Routine "validation" was not non-slip safe, so reset the non-slip timer
+        routineTimer.reset()
+        # mark thisEyeTracker as finished
+        if hasattr(thisEyeTracker, 'status'):
+            thisEyeTracker.status = FINISHED
+        # if awaiting a pause, pause now
+        if eyeTracker.status == PAUSED:
+            thisExp.status = PAUSED
+            pauseExperiment(
+                thisExp=thisExp, 
+                win=win, 
+                timers=[globalClock], 
+            )
+            # once done pausing, restore running status
+            eyeTracker.status = STARTED
+    # completed eyeTrackerOn repeats of 'eyeTracker'
+    eyeTracker.status = FINISHED
+    
+    
+    # set up handler to look after randomisation of conditions etc
     blocks = data.TrialHandler2(
         name='blocks',
-        nReps=1.0, 
+        nReps=repeatBlockN, 
         method='sequential', 
         extraInfo=expInfo, 
         originPath=-1, 
-        trialList=data.importConditions('blocks.xlsx'), 
+        trialList=[None], 
         seed=None, 
         isTrials=False, 
     )
@@ -999,22 +1316,25 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         continueRoutine = True
         # update component parameters for each repeat
         # Run 'Begin Routine' code from block_code
-        if trainingSession:
-            repeatCondN = 1
-        #    if blocks.thisN > 0:
-            print('should be finished')
-            blocks.finished = True
-        #    conditions.status = FINISHED
-        #    trials.status = FINISHED
+        if blocks.thisN > 0:
+            isTraining = 0
         else:
-            repeatBlockN = 1
+            isTraining = 1
         
-        if 'training' in condFile:
-            bText = task_texts['bText_training'] # 'Following are the training trials \n\n Press "space" to begin...'
-            if expInfo['skipCalib'] == 1:
+        if not isTraining or trainingSession:
+            repeatCondN = 3
+        else:
+            repeatCondN = 1
+        
+        if isTraining:
+            if eyeTrackerOn or eog_calib:
+                bText = ''
                 continueRoutine = False
+            else:
+                bText = task_texts['bText_training'] # 'Following are the training trials \n\n Press "space" to begin...'
         else:
             bText = task_texts['bText_experiment'] # 'Following are the experimental trials \n\n Press "space" to begin...'
+        
         block_text.setText(bText)
         # create starting attributes for block_key_resp
         block_key_resp.keys = []
@@ -1159,7 +1479,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             method='random', 
             extraInfo=expInfo, 
             originPath=-1, 
-            trialList=data.importConditions(condFile), 
+            trialList=data.importConditions('conditions.xlsx'), 
             seed=None, 
             isTrials=True, 
         )
@@ -1200,10 +1520,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             if isTraining and not trainingSession:
                 nTrials = 10 # trials per each row in the condition table
             else:
-                nTrials = 4 # 40
-                    
+                nTrials = 40
             
-            if eog_calib and conditions.thisN % 4 == 0 and expInfo['skipCalib'] == 0:
+            if eog_calib and conditions.thisN % 4 == 0:
+                trigger_start = None
                 # Choose calibration layout
                 calib_layout = "x"     # "x" (horizontal only) or "grid" (2D)
             
@@ -1222,7 +1542,6 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 # ensure center first (optional)
                 calibration_positions = [p for p in calibration_positions if p != (0.0, 0.0)]
                 calibration_positions.insert(0, (0.0, 0.0))
-                print(calibration_positions)
                 
                 # timing/state as before...
                 fixation_hold_time = 0.5
@@ -1238,6 +1557,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 calib_dot.pos = calibration_positions[current_calib_index]
                 current_x = calibration_positions[current_calib_index][0]
                 trigN = '1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[current_x])]
+                
+                eyeTrackerTriggerSent = 0
             else:
                 continueRoutine = False
             
@@ -1277,23 +1598,24 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
                 # update/draw components on each frame
                 # Run 'Each Frame' code from cond_setup_code
-                current_point = x_points.index(calibration_positions[current_calib_index][0])
-                if t > 2:
+                #current_point = x_points.index(calibration_positions[current_calib_index][0])
+                if t > 4:
                     # --- Key handling ---
-                    keys = event.getKeys()
+                    keys = kb.getKeys()
                     if 'space' in keys and eog_calib:
                         # restart calibration
                         current_calib_index = 0
                         phase = "hold"
                         phase_start = t
                         calibration_done = False
+                        
                         calib_dot.opacity = 1.0
                         calib_dot.pos = calibration_positions[current_calib_index]
                     # --- Calibration logic ---
                     if eog_calib and not calibration_done:
                         current_x = calibration_positions[current_calib_index][0]
-                        trigN = '1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[current_x])]
-                        sendTrigger(t-phase_start, trigN, expInfo['EEG'], 0.05)
+                        current_point = x_points.index(current_x)
+                
                         # durations
                         sample_duration = sample_time_first if current_calib_index == 0 else sample_time_default
                 
@@ -1309,18 +1631,29 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                             if elapsed >= fixation_hold_time:
                                 phase = "sample"
                                 phase_start = t
+                                trigger_start = None
                 
                         elif phase == "sample":
                             # pulse lineWidth a bit for visibility (purely cosmetic)
                             # smooth 0..1 progress through the sample window:
                             p = min(1.0, elapsed / sample_duration)
                             calib_dot.lineWidth = 5.0 + 5.0 * np.sin(2*np.pi * p -np.pi/4) 
-                
+                            
+                            if trigger_start == None:
+                                trigger_start = t
+                            
+                            trigN = '1'+ str(isTraining) + trigdic['calib'] + trigdic[str(x_to_axis_index[current_x])]
+                            sendTrigger(t-trigger_start, trigN, expInfo['EEG'], 0.05)
+                            if expInfo['eyeTracker'] == '1' and not eyeTrackerTriggerSent:
+                                ioServer.sendMessageEvent(text = 'trial_start', category = 'calibration_'+str(x_to_axis_index[current_x]))
+                                eyeTrackerTriggerSent = 1
                             if elapsed >= sample_duration:
                                 # advance to next point
                                 current_calib_index += 1
                                 phase = "hold"
                                 phase_start = t
+                                trigger_start = None
+                                eyeTrackerTriggerSent = 0
                 
                                 if current_calib_index >= len(calibration_positions):
                                     calibration_done = True
@@ -1485,26 +1818,39 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 if trials.thisN > halfOftrials-1:
                     current_hand = hands_in_translation[hand_list[0]] # for presenting
                     save_hand = hands[hand_list[0]] # for saving
-                    fb_msg = feedback_in_translation[1]
+                    fb_pairs_msg = pair_snd_translation[1]
+                    fb_sound_msg = feedback_snd_translation[0]
+                    slowedDowntrials = 0
                 else:
-                    if trials.thisN < halfOftrials*lowTrainingProportion and trainingSession:
+                    if trials.thisN < halfOftrials*lowTrainingProportion and trainingSession and conditions.thisN < 8:
                         slow_msg = slow_text_in_translation +' '+ str(math.ceil(halfOftrials*lowTrainingProportion))
                         symShowFrames = 11*frameConst*3
                         waitNextPairFrames = 54*frameConst*3
                         flipAfterEvery = [element * (frameConst*3) for element in flipAfterOriginal]
                         stimDur = 3.1*3 + waitRespTime
+                        slowedDowntrials = 1
                     else:
                         slow_msg = ''
                         symShowFrames = 11*frameConst
                         waitNextPairFrames = 54*frameConst
                         flipAfterEvery = [element * frameConst for element in flipAfterOriginal]
                         stimDur = 3.1 + waitRespTime
+                        slowedDowntrials = 0
                     current_hand = hands_in_translation[hand_list[1]]
                     save_hand = hands[hand_list[1]]
-                    if isTraining:
-                        fb_msg = feedback_in_translation[0]
-                    else:
-                        fb_msg = feedback_in_translation[1] 
+                    fb_pairs_msg = pair_snd_translation[0]
+                    fb_sound_msg = feedback_snd_translation[0]
+                
+                if isTraining and conditions.thisN > 2 and not trainingSession:
+                    fb_pairs_msg = pair_snd_translation[1]
+                    fb_sound_msg = feedback_snd_translation[1]
+                elif conditions.thisN > 7 and trainingSession:
+                    fb_pairs_msg = pair_snd_translation[1]
+                    fb_sound_msg = feedback_snd_translation[1]
+                
+                if not isTraining:
+                    fb_pairs_msg = ''
+                    fb_sound_msg = ''
                 
                 # Define numbers to draw
                 numbers = ['1', '2', '3', '4']
@@ -1525,7 +1871,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 key_block_intro.keys = []
                 key_block_intro.rt = []
                 _key_block_intro_allKeys = []
-                text_block_below.setText(task_texts['cond_text_hand'] + ' ' + current_hand + '\n' + fb_msg + '\n' + slow_msg)
+                text_block_below.setText(task_texts['cond_text_hand'] + ' ' + current_hand + '\n' + fb_pairs_msg + '\n' + fb_sound_msg + '\n' + slow_msg)
                 please_fixate.setColor([mLum, mLum, mLum], colorSpace='rgb')
                 please_fixate.setText(task_texts['gaze'])
                 # store start times for cond_intro
@@ -1721,6 +2067,25 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 rects.opacities = 1 # Set the opacity back up for all the boxes 
                 absNumOfTrials += 1 # Increase the trial counter by 1
                 thisExp.addData('absNumOfTrials', absNumOfTrials) # Send info about trial number to the data file
+                
+                if fb_pairs_msg:
+                    if fb_pairs_msg == pair_snd_translation[0]:
+                        fb_pairs_save = 'on'
+                        thisExp.addData('sndPairs', fb_pairs_save)
+                    else:
+                        fb_pairs_save = 'off'
+                        thisExp.addData('sndPairs', fb_pairs_save)
+                    if fb_sound_msg == feedback_snd_translation[0]:
+                        sndFeedback_save = 'on'
+                        thisExp.addData('sndFeedback', sndFeedback_save)
+                    else:
+                        sndFeedback_save = 'off'
+                        thisExp.addData('sndFeedback', sndFeedback_save)
+                else:
+                    fb_pairs_save = 'off'
+                    sndFeedback_save = 'off'
+                    thisExp.addData('sndPairs', fb_pairs_save)
+                    thisExp.addData('sndFeedback', sndFeedback_save)
                 fix_iti.setColor([mLum, mLum, mLum], colorSpace='rgb')
                 # store start times for iti
                 iti.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
@@ -1851,7 +2216,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 # create an object to store info about Routine trial
                 trial = data.Routine(
                     name='trial',
-                    components=[image_a, image_b, image_c, image_d, fix_trial],
+                    components=[image_a, image_b, image_c, image_d, fix_trial, roi],
                 )
                 trial.status = NOT_STARTED
                 continueRoutine = True
@@ -1900,7 +2265,14 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 if int(expInfo['testRun']):
                     RTs = [(i + 1) + random() for i in range(randint(1, 3))]
                     nDummyResponses = 0
+                
+                if expInfo['eyeTracker'] == '1':
+                    eyeTrackerTriggerSent = 0
+                
+                
                 fix_trial.setColor([mLum, mLum, mLum], colorSpace='rgb')
+                # clear any previous roi data
+                roi.reset()
                 # store start times for trial
                 trial.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
                 trial.tStart = globalClock.getTime(format='float')
@@ -1936,6 +2308,10 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     # update/draw components on each frame
                     # Run 'Each Frame' code from presentStim
                     sendTrigger(t-t2, trigN, expInfo['EEG'], 0.05)
+                    
+                    if expInfo['eyeTracker'] == '1' and not eyeTrackerTriggerSent:
+                        ioServer.sendMessageEvent(text = 'trial_start', category = str(isTraining)+'_'+attendCond)
+                        eyeTrackerTriggerSent = 1
                     
                     rects.draw()  # Present the boxes
                     
@@ -1982,7 +2358,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         # -----------------------------
                         if hit_now:
                             if frameN - frameCount >= waitNextPairFrames + symShowFrames:
-                    
+                                targetPair = True
                                 # Start a new valid target-pair epoch
                                 eventOnset = t
                                 eventResponded = False
@@ -2030,7 +2406,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     
                         if not t > (stimDur - waitRespTime):
                             allPresentedSymbols.append(copy.deepcopy(randomSet))
-                            if int(expInfo['testRun']) or (isTraining and thisN < int(nTrials/2)):
+                    #         if (int(expInfo['testRun']) or (isTraining and trials.thisN < int(nTrials/2))) and conditions.thisN < 3:
+                            if fb_pairs_save == 'on':
                                 if 'target' in imList[cond[0]].image and 'target' in imList[cond[1]].image:
                                     mySound = sound.Sound('A', octave=3, hamming=True,
                                                           speaker='Speaker', secs=0.100, volume=vol)
@@ -2056,6 +2433,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                         if 'space' in keys[-1].name:
                             trigN = '1' + str(isTraining) + trigdic['resp'] + trigdic[attendCond]
                             t2 = t
+                            responseGiven = True
                             if not isTraining:
                                 sendTrigger(t-t2, trigN, expInfo['EEG'], 0.05)
                     
@@ -2080,14 +2458,15 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                             if in_window and (not eventResponded):
                     
                                 # HIT
-                                addData(rt, True, absNumOfTrials, nrOfEntries, 1)
+                                addData(rt, True, sndFeedback_save, fb_pairs_save, absNumOfTrials, nrOfEntries, slowedDowntrials, isTraining, 1)
                                 nrOfEntries += 1
                     
                                 eventResponded = True
                                 eventOnset = None
                                 lureOnsets = []
                     
-                                if isTraining:
+                    #            if isTraining and conditions.thisN < 3:
+                                if sndFeedback_save == 'on':
                                     mySound = sound.Sound('A', octave=4, hamming=True,
                                                           speaker='Speaker', secs=0.100, volume=vol)
                                     mySound.play()
@@ -2097,7 +2476,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                                 # FALSE ALARM to recent lure event
                                 fa_rt = min(valid_lure_rts)
                     
-                                addData('false alarm', False, absNumOfTrials, nrOfEntries, 0)
+                                addData('false alarm', False, sndFeedback_save, fb_pairs_save, absNumOfTrials, nrOfEntries, slowedDowntrials, isTraining, 0)
                                 nrOfEntries += 1
                     
                                 lureOnsets = []
@@ -2112,7 +2491,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     # Place AFTER key handling
                     # -----------------------------
                     if (eventOnset is not None) and (not eventResponded) and ((t - eventOnset) > MAX_RT):
-                        addData('miss', True, absNumOfTrials, nrOfEntries, 0)
+                        addData('miss', True, sndFeedback_save, fb_pairs_save, absNumOfTrials, nrOfEntries, slowedDowntrials, isTraining, 0)
                         nrOfEntries += 1
                     
                         eventResponded = True
@@ -2295,6 +2674,49 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                             fix_trial.status = FINISHED
                             fix_trial.setAutoDraw(False)
                     
+                    # if roi is starting this frame...
+                    if roi.status == NOT_STARTED and tThisFlip >= 0.0-frameTolerance:
+                        # keep track of start time/frame for later
+                        roi.frameNStart = frameN  # exact frame index
+                        roi.tStart = t  # local t and not account for scr refresh
+                        roi.tStartRefresh = tThisFlipGlobal  # on global time
+                        win.timeOnFlip(roi, 'tStartRefresh')  # time at next scr refresh
+                        # update status
+                        roi.status = STARTED
+                        roi.setAutoDraw(True)
+                    
+                    # if roi is active this frame...
+                    if roi.status == STARTED:
+                        # update params
+                        pass
+                        # check whether roi has been looked in
+                        if roi.isLookedIn:
+                            if not roi.wasLookedIn:
+                                roi.timesOn.append(roi.clock.getTime()) # store time of first look
+                                roi.timesOff.append(roi.clock.getTime()) # store time looked until
+                            else:
+                                roi.timesOff[-1] = roi.clock.getTime() # update time looked until
+                            roi.wasLookedIn = True  # if roi is still looked at next frame, it is not a new look
+                        else:
+                            if roi.wasLookedIn:
+                                roi.timesOff[-1] = roi.clock.getTime() # update time looked until
+                            roi.wasLookedIn = False  # if roi is looked at next frame, it is a new look
+                    else:
+                        roi.clock.reset() # keep clock at 0 if roi hasn't started / has finished
+                        roi.wasLookedIn = False  # if roi is looked at next frame, it is a new look
+                    
+                    # if roi is stopping this frame...
+                    if roi.status == STARTED:
+                        # is it time to stop? (based on global clock, using actual start)
+                        if tThisFlipGlobal > roi.tStartRefresh + 3.1-frameTolerance:
+                            # keep track of stop time/frame for later
+                            roi.tStop = t  # not accounting for scr refresh
+                            roi.tStopRefresh = tThisFlipGlobal  # on global time
+                            roi.frameNStop = frameN  # exact frame index
+                            # update status
+                            roi.status = FINISHED
+                            roi.setAutoDraw(False)
+                    
                     # check for quit (typically the Esc key)
                     if defaultKeyboard.getKeys(keyList=["escape"]):
                         thisExp.status = FINISHED
@@ -2343,11 +2765,23 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                 # Final check at end of trial to log missed responses
                 if not responseGiven:
                     if targetPair:
-                        addData('miss', targetPair, absNumOfTrials, nrOfEntries, 0)  # Missed target
+                        addData('miss', targetPair, sndFeedback_save, fb_pairs_save, absNumOfTrials, nrOfEntries,slowedDowntrials, isTraining, 0)  # Missed target
                     elif nrOfEntries == 0:
-                        addData('correct rejection', targetPair, absNumOfTrials, nrOfEntries, 'CR')  # No target, no response
+                        addData('correct rejection', targetPair, sndFeedback_save, fb_pairs_save, absNumOfTrials, nrOfEntries, slowedDowntrials, isTraining,'CR')  # No target, no response
                     nrOfEntries += 1
-                    responseGiven = True  # Mark as handled
+                    responseGiven = True  # Mark as handled 
+                trials.addData('roi.numLooks', roi.numLooks)
+                if roi.numLooks:
+                   trials.addData('roi.timesOn', roi.timesOn)
+                   trials.addData('roi.timesOff', roi.timesOff)
+                   # calculate and store dwell times i.e. the duration between look onsets and offsets
+                   roi.dwellTime = 0.0
+                   for i in range(len(roi.timesOn)):
+                       roi.dwellTime += roi.timesOff[i] - roi.timesOn[i]
+                   trials.addData('roi.dwellTime', roi.dwellTime)
+                else:
+                   trials.addData('roi.timesOn', "")
+                   trials.addData('roi.timesOff', "")
                 # the Routine "trial" was not non-slip safe, so reset the non-slip timer
                 routineTimer.reset()
                 # mark thisTrial as finished
@@ -2405,7 +2839,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             )
             # once done pausing, restore running status
             blocks.status = STARTED
-    # completed 1.0 repeats of 'blocks'
+    # completed repeatBlockN repeats of 'blocks'
     blocks.status = FINISHED
     
     
@@ -2565,6 +2999,10 @@ def endExperiment(thisExp, win=None):
     win : psychopy.visual.Window
         Window for this experiment.
     """
+    # stop any playback components
+    if thisExp.currentRoutine is not None:
+        for comp in thisExp.currentRoutine.getPlaybackComponents():
+            comp.stop()
     if win is not None:
         # remove autodraw from all current components
         win.clearAutoDraw()
