@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2026.1.1),
-    on juuli 21, 2026, at 15:21
+    on juuli 22, 2026, at 14:52
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -411,7 +411,24 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # --- Initialize components for Routine "setup" ---
     # Run 'Begin Experiment' code from define_vars
-    core.rush(True, realtime=True)
+    # core.rush(True, realtime=True)
+    import copy
+    
+    # initialize 'Speaker'
+    deviceManager.addDevice(
+        deviceName='Speaker',
+        index=6.0, # Most probably needs to be changed
+        name='Speakers (Realtek(R) Audio) ', # # Most probably needs to be changed, e.g. Speakers (Realtek(R) Audio)  Headphones (Realtek(R) Audio) Headphones (LE_WH-1000XM3)
+        deviceClass='psychopy.hardware.speaker.SpeakerDevice',
+        resample=True,
+        latencyClass=1,
+    )
+    
+    
+    mySound = sound.Sound('A', stereo=True, hamming=True, secs=0.100, speaker='Speaker', name='mySound')
+    
+    if expInfo['eyeTracker'] == '1':
+        trainingList = ['experiment','training']
     
     if expInfo['EEG'] == '1':
         print('Set port')
@@ -1327,11 +1344,11 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
             repeatCondN = 1
         
         if isTraining:
-            if eyeTrackerOn or eog_calib:
+            if (eyeTrackerOn and eog_calib) or (not eyeTrackerOn and not eog_calib) or (eyeTrackerOn and not eog_calib):
                 bText = ''
                 continueRoutine = False
             else:
-                bText = task_texts['bText_training'] # 'Following are the training trials \n\n Press "space" to begin...'
+                bText = task_texts['bText_training'] # 'Following are the training trials \n\n Press "space" to begin...'        
         else:
             bText = task_texts['bText_experiment'] # 'Following are the experimental trials \n\n Press "space" to begin...'
         
@@ -2875,7 +2892,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     # --- Run Routine "outro" ---
     thisExp.currentRoutine = outro
     outro.forceEnded = routineForceEnded = not continueRoutine
-    while continueRoutine and routineTimer.getTime() < 2.0:
+    while continueRoutine and routineTimer.getTime() < 4.0:
         # get current time
         t = routineTimer.getTime()
         tThisFlip = win.getFutureFlipTime(clock=routineTimer)
@@ -2904,7 +2921,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         # if outro_text is stopping this frame...
         if outro_text.status == STARTED:
             # is it time to stop? (based on global clock, using actual start)
-            if tThisFlipGlobal > outro_text.tStartRefresh + 2-frameTolerance:
+            if tThisFlipGlobal > outro_text.tStartRefresh + 4-frameTolerance:
                 # keep track of stop time/frame for later
                 outro_text.tStop = t  # not accounting for scr refresh
                 outro_text.tStopRefresh = tThisFlipGlobal  # on global time
@@ -2960,7 +2977,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     elif outro.forceEnded:
         routineTimer.reset()
     else:
-        routineTimer.addTime(-2.000000)
+        routineTimer.addTime(-4.000000)
     thisExp.nextEntry()
     
     # mark experiment as finished
