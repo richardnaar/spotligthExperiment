@@ -12,6 +12,11 @@ At the beginning of each block, the starting response hand is selected at random
 
 - the locations to be attended (e.g., locations 1 and 3);
 - the response hand to be used;
+
+The main experimental blocks contain neither target-pair tones nor correct-response feedback. Participants are informed of this before the experiment begins, so the auditory-assistance status is not repeated on the block instruction screens.
+
+During practice blocks, the screen additionally specifies:
+
 - whether a tone indicating the presence of a target pair will be presented;
 - whether correct-response feedback will be provided; and
 - the number of slowed-down trials at the beginning of the block.
